@@ -36,12 +36,6 @@ const userSchema = new mongoose.Schema(
       default: "",
       maxlength: 200,
     },
-
-    skills: {
-      type: [String],
-      default: [],
-    },
-
     avatar: {
       type: String,
       default:
