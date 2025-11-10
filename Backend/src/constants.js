@@ -1,1 +1,1 @@
-export default DB_NAME = "ProbZ";
+export const DB_NAME = "ProbZ";
