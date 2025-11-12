@@ -1,28 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Mail, User, Lock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { registerUser } from "../../api/PostApi";
+
 export default function RegisterForm() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
-    avatar: null,
     role: "user",
     bio: "",
+    avatar: null,
   });
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage("");
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -33,49 +24,44 @@ export default function RegisterForm() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     setMessage("");
 
-    if (!formData.username || !formData.email || !formData.password) {
-      setMessage(
-        "⚠️ Please fill out all required fields (username, email, password)."
-      );
-      return;
-    }
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(formData.email)) {
-      setMessage("⚠️ Please enter a valid email address.");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setMessage("⚠️ Password must be at least 6 characters long.");
-      return;
-    }
-
-    setLoading(true);
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const data = new FormData();
+      data.append("username", formData.username);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      data.append("role", formData.role);
+      data.append("bio", formData.bio);
+      if (formData.avatar) data.append("avatar", formData.avatar);
 
-      setMessage("✅ Registration successful! Welcome to our community.");
-      setTimeout(() => {
-        navigate("/signin");
-      }, 1500);
-      setFormData({
-        username: "",
-        email: "",
-        password: "",
-        role: "user",
-        bio: "",
-        avatar: null,
-      });
+      {
+        console.log(formData);
+      }
+      const response = await registerUser(data);
+
+      if (response.status === 201 || response.status === 200) {
+        setMessage(
+          "Registration successful! Welcome to our knowledge sharing community."
+        );
+
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          role: "user",
+          bio: "",
+          avatar: "",
+        });
+      } else {
+        setMessage("Registration failed. Please try again.");
+      }
     } catch (error) {
-      setMessage(
-        "❌ Registration failed. Please try again.",
-        console.log(error)
-      );
+      console.error("Registration error:", error);
+      setMessage("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -90,8 +76,8 @@ export default function RegisterForm() {
 
         {message && (
           <div
-            className={`mb-4 text-sm px-4 py-3 rounded-lg transition-opacity duration-500 ${
-              message.includes("successful") || message.startsWith("✅")
+            className={`mb-4 text-sm px-4 py-3 rounded-lg ${
+              message.includes("successful")
                 ? "bg-green-50 text-green-800 border border-green-200"
                 : "bg-red-50 text-red-800 border border-red-200"
             }`}
@@ -100,7 +86,7 @@ export default function RegisterForm() {
           </div>
         )}
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Username */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -111,10 +97,11 @@ export default function RegisterForm() {
               <input
                 type="text"
                 name="username"
-                placeholder="UserName"
+                placeholder="John Doe"
                 value={formData.username}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 onChange={handleChange}
+                required
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -129,10 +116,11 @@ export default function RegisterForm() {
               <input
                 type="email"
                 name="email"
-                placeholder="User Email"
+                placeholder="john@example.com"
                 value={formData.email}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 onChange={handleChange}
+                required
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -149,8 +137,9 @@ export default function RegisterForm() {
                 name="password"
                 placeholder="••••••••"
                 value={formData.password}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 onChange={handleChange}
+                required
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -163,8 +152,8 @@ export default function RegisterForm() {
             <select
               name="role"
               value={formData.role}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
               onChange={handleChange}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
@@ -178,15 +167,15 @@ export default function RegisterForm() {
             </label>
             <textarea
               name="bio"
-              placeholder="Tell us about yourself and your areas of interest..."
+              placeholder="Tell us about yourself..."
               value={formData.bio}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows="3"
               onChange={handleChange}
+              rows="3"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
 
-          {/* Avatar */}
+          {/* Avatar Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Profile Picture
@@ -195,27 +184,37 @@ export default function RegisterForm() {
               type="file"
               name="avatar"
               accept="image/*"
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
               onChange={handleChange}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg file:bg-blue-50 file:text-blue-700 file:font-semibold file:rounded-full file:px-4 file:py-2 hover:file:bg-blue-100 cursor-pointer"
             />
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {loading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Registering...</span>
+                Registering...
               </>
             ) : (
-              <>Join Community</>
+              <>Sign Up</>
             )}
           </button>
-        </div>
+        </form>
+
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Already have an account?{" "}
+          <a
+            href="/signin"
+            className="text-blue-600 font-medium hover:underline"
+          >
+            Sign in
+          </a>
+        </p>
       </div>
     </div>
   );

@@ -1,11 +1,7 @@
-import RegisterForm from "./component/SignUp/SignUp";
+import RegisterForm from "./components/SignUp/SignUp";
 
 function App() {
-  return (
-    <div>
-      <RegisterForm></RegisterForm>
-    </div>
-  );
+  return <RegisterForm></RegisterForm>;
 }
 
 export default App;
