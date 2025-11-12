@@ -97,7 +97,7 @@ export default function RegisterForm() {
               <input
                 type="text"
                 name="username"
-                placeholder="Username"
+                placeholder="Enter Username"
                 value={formData.username}
                 onChange={handleChange}
                 required
@@ -116,7 +116,7 @@ export default function RegisterForm() {
               <input
                 type="email"
                 name="email"
-                placeholder="example@example.com"
+                placeholder="Enter Email"
                 value={formData.email}
                 onChange={handleChange}
                 required
