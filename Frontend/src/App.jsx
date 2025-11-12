@@ -1,5 +1,11 @@
+import RegisterForm from "./component/SignUp/SignUp";
+
 function App() {
-  return <h1>hehehe</h1>;
+  return (
+    <div>
+      <RegisterForm></RegisterForm>
+    </div>
+  );
 }
 
 export default App;
