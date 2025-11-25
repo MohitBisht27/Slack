@@ -10,3 +10,9 @@ export const registerUser = (formData) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
+export const loginUser = (formData) => {
+  return api.post("/login", formData, {
+    headers: { "Content-Type": "application/json" },
+  });
+};
