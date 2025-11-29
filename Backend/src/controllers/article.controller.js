@@ -31,4 +31,18 @@ const addArticle = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, article, "Posted Successfully"));
 });
 
-export { addArticle };
+const getAllArticles = asyncHandler(async (req, res) => {
+  const articles = await Article.find()
+    .populate("author")
+    .sort({ createAt: -1 });
+  if (!articles) {
+    throw new ApiError("Failed to fetch articles");
+  }
+  res.status(200).json({
+    success: true,
+    count: articles.length,
+    data: articles,
+  });
+});
+
+export { addArticle, getAllArticles };
