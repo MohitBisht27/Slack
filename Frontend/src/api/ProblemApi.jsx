@@ -11,6 +11,10 @@ export const addProblem = (data) => {
   });
 };
 
+export const getAllProblem = () => {
+  return api.get("/getAllArticles");
+};
+
 //Testing
 // export const addProblem = (data) => {
 //   const token =
