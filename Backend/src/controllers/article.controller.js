@@ -26,9 +26,10 @@ const addArticle = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while posting");
   }
 
+  const populatedArticle = await article.populate("author", "-password");
   return res
     .status(201)
-    .json(new ApiResponse(200, article, "Posted Successfully"));
+    .json(new ApiResponse(200, populatedArticle, "Posted Successfully"));
 });
 
 const getAllArticles = asyncHandler(async (req, res) => {
