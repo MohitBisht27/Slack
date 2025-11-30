@@ -16,3 +16,7 @@ export const loginUser = (formData) => {
     headers: { "Content-Type": "application/json" },
   });
 };
+
+export const getCurrentUser = () => {
+  return api.get("/current-user");
+};
