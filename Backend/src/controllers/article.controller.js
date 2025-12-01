@@ -9,7 +9,7 @@ const addArticle = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
   const userId = req.user._id;
-  console.log("Current user:", userId);
+  // console.log("Current user:", userId);
 
   if (!req.user?._id) {
     throw new ApiError(401, "Unauthorized - user not found");
@@ -39,11 +39,30 @@ const getAllArticles = asyncHandler(async (req, res) => {
   if (!articles) {
     throw new ApiError("Failed to fetch articles");
   }
-  res.status(200).json({
-    success: true,
-    count: articles.length,
-    data: articles,
-  });
+  res
+    .status(200)
+    .json(new ApiResponse(200, articles, "All fetch Successfully"));
 });
 
-export { addArticle, getAllArticles };
+const getMyArticles = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  console.log("Current user:", userId);
+
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized - user not found");
+  }
+
+  const articles = await Article.find({ author: userId })
+    .populate("author", "-password")
+    .sort({ createdAt: -1 });
+
+  if (!articles || articles.length === 0) {
+    throw new ApiError(404, "No articles found for this user");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, articles, "Articles fetched successfully"));
+});
+
+export { addArticle, getAllArticles, getMyArticles };
