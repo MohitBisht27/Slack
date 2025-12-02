@@ -10,11 +10,13 @@ import {
 } from "react-router-dom";
 import Layout from "./Layout";
 import Home from "./pages/Home";
+import ProfileCard from "./components/UserCard/UserCard";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
       <Route index element={<Home />}></Route>
       <Route path="/ask-problem" element={<AskProblem />} />
+      <Route path="/profile" element={<ProfileCard />} />
       <Route path="/SigninForm" element={<SigninForm></SigninForm>}></Route>
       <Route
         path="/RegisterForm"
