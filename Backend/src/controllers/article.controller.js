@@ -65,4 +65,26 @@ const getMyArticles = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, articles, "Articles fetched successfully"));
 });
 
-export { addArticle, getAllArticles, getMyArticles };
+const getArticlesByUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    throw new ApiError(400, "User ID is required");
+  }
+
+  const articles = await Article.find({ author: userId })
+    .populate("author", "username email -_id")
+    .sort({ createdAt: -1 });
+
+  if (!articles || articles.length === 0) {
+    throw new ApiError(404, "No articles found for this user");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, articles, "User's articles fetched successfully")
+    );
+});
+
+export { addArticle, getAllArticles, getMyArticles, getArticlesByUser };
