@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { loginUser } from "../../api/PostApi";
+import { Link, useNavigate } from "react-router-dom";
 
 function SignIn() {
+  const navigate = useNavigate();
   const [user, setUserData] = useState({
     email: "",
     password: "",
@@ -34,6 +36,9 @@ function SignIn() {
           email: "",
           password: "",
         });
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       } else {
         setMessage("Login failed. Please check your credentials.");
       }
@@ -130,12 +135,12 @@ function SignIn() {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Don't have an account?{" "}
-          <a
-            href="/register"
+          <Link
+            to="/RegisterForm"
             className="text-blue-600 font-medium hover:underline"
           >
             Sign up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

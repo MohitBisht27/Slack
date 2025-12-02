@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Mail, User, Lock } from "lucide-react";
 import { registerUser } from "../../api/PostApi";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -56,6 +58,9 @@ export default function RegisterForm() {
           bio: "",
           avatar: "",
         });
+        setTimeout(() => {
+          navigate("/SigninForm");
+        }, 1500);
       } else {
         setMessage("Registration failed. Please try again.");
       }
@@ -208,12 +213,12 @@ export default function RegisterForm() {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
-          <a
-            href="/signin"
+          <Link
+            to="/SigninForm"
             className="text-blue-600 font-medium hover:underline"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

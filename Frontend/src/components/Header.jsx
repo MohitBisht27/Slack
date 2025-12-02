@@ -1,10 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-
+import LogoutButton from "./LogOut/LogOut";
 export default function Header() {
   const [open, setOpen] = useState(false);
-
   return (
     <header className="shadow sticky z-50 top-0 bg-white">
       <nav className="border-gray-200 px-4 lg:px-6 py-2.5">
@@ -34,12 +33,13 @@ export default function Header() {
 
               {open && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg py-2 z-50">
-                  <Link
+                  <NavLink
+                    onClick={() => setOpen(false)}
                     to="/profile"
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-50"
                   >
                     View Profile
-                  </Link>
+                  </NavLink>
                   <Link
                     to="/settings"
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-50"
@@ -47,12 +47,7 @@ export default function Header() {
                     Settings
                   </Link>
                   <hr className="my-1" />
-                  <button
-                    onClick={() => alert("Logged out")}
-                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50"
-                  >
-                    Logout
-                  </button>
+                  <LogoutButton onLogout={() => setOpen(false)} />
                 </div>
               )}
             </div>

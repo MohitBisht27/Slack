@@ -17,6 +17,10 @@ export const loginUser = (formData) => {
   });
 };
 
+export const logoutUser = () => {
+  return api.post("/logout");
+};
+
 export const getCurrentUser = () => {
   return api.get("/current-user");
 };
