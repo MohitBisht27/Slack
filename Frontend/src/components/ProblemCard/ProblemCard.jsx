@@ -9,6 +9,7 @@ import {
 import { getAllProblem } from "../../api/ProblemApi";
 
 export default function DoubtFeed() {
+  const [profile, setProfile] = useState(null);
   const [doubts, setDoubts] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,11 @@ export default function DoubtFeed() {
       try {
         const response = await getAllProblem();
         const result = response.data;
+        // console.log(result);
+        const profile = result.data[0].author.avatar;
+        // console.log(profile);
         const allDoubts = result.data;
+        setProfile(profile);
         if (Array.isArray(allDoubts)) {
           setDoubts(allDoubts);
         }
@@ -77,9 +82,16 @@ export default function DoubtFeed() {
           <div className="p-6 space-y-4">
             {/* Author Info */}
             <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-full">
-                <User className="w-5 h-5 text-white" />
+              <div className="bg-gradient-to-br p-[2px] rounded-full">
+                <div className="bg-white rounded-full p-[2px]">
+                  <img
+                    src={doubt.author?.avatar || profile}
+                    alt="Author"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                </div>
               </div>
+
               <div className="flex-1">
                 <p className="font-medium text-slate-900">
                   {doubt.author?.username || "Anonymous"}
@@ -135,8 +147,7 @@ export default function DoubtFeed() {
           </div>
 
           {/* Footer */}
-          <div className="bg-slate-50 px-6 py-3 flex items-center justify-between text-sm text-slate-600 border-t border-slate-100">
-            <span>Doubt ID: {doubt._id}</span>
+          <div className="bg-slate-50 px-6 py-3 flex items-center justify-end text-sm text-slate-600 border-t border-slate-100">
             <span className="text-xs bg-slate-200 px-3 py-1 rounded-full">
               Views: {doubt.views}
             </span>
