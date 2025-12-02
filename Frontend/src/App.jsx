@@ -9,11 +9,12 @@ import {
   Route,
 } from "react-router-dom";
 import Layout from "./Layout";
-
+import Home from "./pages/Home";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
-      <Route index element={<AskProblem />}></Route>
+      <Route index element={<Home />}></Route>
+      <Route path="/ask-problem" element={<AskProblem />} />
       <Route path="/SigninForm" element={<SigninForm></SigninForm>}></Route>
       <Route
         path="/RegisterForm"
