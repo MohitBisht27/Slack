@@ -11,12 +11,14 @@ import {
 import Layout from "./Layout";
 import Home from "./pages/Home";
 import ProfileCard from "./components/UserCard/UserCard";
+import CommentSection from "./components/CommentCard/CommentCard";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
       <Route index element={<Home />}></Route>
       <Route path="/ask-problem" element={<AskProblem />} />
       <Route path="/profile" element={<ProfileCard />} />
+      <Route path="/comment" element={<CommentSection />} />
       <Route path="/SigninForm" element={<SigninForm></SigninForm>}></Route>
       <Route
         path="/RegisterForm"

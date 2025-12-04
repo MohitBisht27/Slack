@@ -8,15 +8,24 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const createComment = asyncHandler(async (req, res) => {
   const { articleId } = req.params;
   console.log(articleId);
-  const { content } = req.body;
+  const { content, parentCommentId } = req.body;
   const userId = req.user._id;
   console.log(userId);
   if (!isValidObjectId(articleId))
     throw new ApiError(400, "Comment content is required");
+
+  if (parentCommentId && !isValidObjectId(parentCommentId)) {
+    throw new ApiError(400, "Invalid parent comment ID");
+  }
+  if (parentCommentId) {
+    const parent = await Comment.findById(parentCommentId);
+    if (!parent) throw new ApiError(404, "Parent comment not found");
+  }
   const comment = await Comment.create({
     content,
     article: articleId,
     owner: userId,
+    parentComment: parentCommentId || null,
   });
   return res
     .status(201)
@@ -33,28 +42,79 @@ const getCommentsForArticle = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid article ID");
   }
   const aggregateQuery = Comment.aggregate([
-    { $match: { article: new mongoose.Types.ObjectId(articleId) } },
+    {
+      $match: {
+        article: new mongoose.Types.ObjectId(articleId),
+        parentComment: null,
+      },
+    },
     {
       $lookup: {
         from: "users",
         localField: "owner",
         foreignField: "_id",
         as: "owner",
-        pipeline: [
-          {
-            $project: { username: 1, avatar: 1 },
-          },
-        ],
+        pipeline: [{ $project: { username: 1, avatar: 1 } }],
       },
     },
     { $unwind: "$owner" },
+    {
+      $graphLookup: {
+        from: "comments",
+        startWith: "$_id",
+        connectFromField: "_id",
+        connectToField: "parentComment",
+        as: "replies",
+        depthField: "depth",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "replies.owner",
+        foreignField: "_id",
+        as: "replyOwners",
+        pipeline: [{ $project: { username: 1, avatar: 1 } }],
+      },
+    },
+    {
+      $addFields: {
+        replies: {
+          $map: {
+            input: "$replies",
+            as: "reply",
+            in: {
+              _id: "$$reply._id",
+              content: "$$reply.content",
+              parentComment: "$$reply.parentComment",
+              createdAt: "$$reply.createdAt",
+              depth: "$$reply.depth",
+              owner: {
+                $arrayElemAt: [
+                  {
+                    $filter: {
+                      input: "$replyOwners",
+                      as: "user",
+                      cond: { $eq: ["$$user._id", "$$reply.owner"] },
+                    },
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
     { $sort: { createdAt: -1 } },
   ]);
   const options = {
     page: pageNumber,
     limit: limitNumber,
   };
+
   const result = await Comment.aggregatePaginate(aggregateQuery, options);
+
   return res
     .status(200)
     .json(new ApiResponse(200, result, "Comments fetched successfully"));
@@ -99,7 +159,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You can delete only your own comment");
   }
 
-  await Like.deleteMany({ comment: commentId }); // optional: clean up likes
+  await Like.deleteMany({ comment: commentId });
   await comment.deleteOne();
 
   return res

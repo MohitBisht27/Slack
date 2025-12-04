@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {
   HelpCircle,
-  User,
   Clock,
   MessageCircle,
   CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { getAllProblem } from "../../api/ProblemApi";
+import CommentCard from "../CommentCard/CommentCard";
 
 export default function DoubtFeed() {
   const [profile, setProfile] = useState(null);
   const [doubts, setDoubts] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
+  const [solveId, setSolveId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,9 +21,7 @@ export default function DoubtFeed() {
       try {
         const response = await getAllProblem();
         const result = response.data;
-        // console.log(result);
-        const profile = result.data[0].author.avatar;
-        // console.log(profile);
+        const profile = result.data[0]?.author?.avatar;
         const allDoubts = result.data;
         setProfile(profile);
         if (Array.isArray(allDoubts)) {
@@ -139,11 +139,35 @@ export default function DoubtFeed() {
                 <MessageCircle className="w-4 h-4" />
                 {expandedId === doubt._id ? "Hide Details" : "View Details"}
               </button>
-              <button className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                <CheckCircle className="w-4 h-4" />
-                Solve
+
+              <button
+                onClick={() =>
+                  setSolveId(solveId === doubt._id ? null : doubt._id)
+                }
+                className={`flex-1 ${
+                  solveId === doubt._id
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                } text-white py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg`}
+              >
+                {solveId === doubt._id ? (
+                  <>
+                    <XCircle className="w-4 h-4" /> Cancel
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" /> Solve
+                  </>
+                )}
               </button>
             </div>
+
+            {/* ✅ Only Comment Section (for answers) */}
+            {solveId === doubt._id && (
+              <div className="mt-6 border-t border-slate-200 pt-4 animate-in fade-in slide-in-from-top-2">
+                <CommentCard articleId={doubt._id} />
+              </div>
+            )}
           </div>
 
           {/* Footer */}
