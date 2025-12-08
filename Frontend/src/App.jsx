@@ -1,4 +1,4 @@
-import AskProblem from "./components/Editor/Problem";
+import AskProblem from "./components/Editor/DoubtEditor";
 import SigninForm from "./components/SignIn/SignIn";
 import RegisterForm from "./components/SignUp/SignUp";
 import {
