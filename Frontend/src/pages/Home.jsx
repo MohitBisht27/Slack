@@ -1,6 +1,7 @@
 import AskProblem from "../components/Editor/Problem";
-import DoubtFeed from "../components/ProblemCard/ProblemCard";
+// import DoubtFeed from "../components/ProblemCard/ProblemCard";
 import { useNavigate } from "react-router-dom";
+import DoubtFeed from "../components/Doubt/DoubtFeed";
 export default function Home() {
   const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ export default function Home() {
       </button>
 
       <div className="w-full max-w-2xl mt-10">
-        <DoubtFeed />
+        <DoubtFeed></DoubtFeed>
       </div>
     </div>
   );
