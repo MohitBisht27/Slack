@@ -16,9 +16,6 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-5 mb-8 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
         <div className="flex items-center gap-4 mb-5">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shrink-0">
-            U
-          </div>
           <button
             onClick={handleClick}
             className="group flex-1 bg-slate-50 hover:bg-white border border-slate-200 hover:border-indigo-300 hover:ring-4 hover:ring-indigo-50/50 text-left py-3 px-5 rounded-full transition-all duration-200 flex items-center gap-3"
