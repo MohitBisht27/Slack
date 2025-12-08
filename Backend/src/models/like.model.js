@@ -13,6 +13,7 @@ const likeSchema = new Schema(
     likeBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }

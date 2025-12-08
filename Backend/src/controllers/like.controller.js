@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Comment } from "../models/comment.model.js";
+
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
   const userId = req.user._id;
@@ -13,7 +14,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   if (!comment) throw new ApiError("Comment not found");
   const existingLike = await Like.findOne({
     comment: commentId,
-    user: userId,
+    likeBy: userId,
   });
   if (existingLike) {
     await existingLike.deleteOne();
@@ -25,7 +26,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   } else {
     await Like.create({
       comment: commentId,
-      user: userId,
+      likeBy: userId,
     });
     return res
       .status(200)
