@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { addProblem } from "../../api/ProblemApi";
-
+import { useNavigate } from "react-router-dom";
 import FormInput from "../AuthForm/FormInput";
 import FormTextarea from "../AuthForm/FormTextarea";
 import SubmitButton from "../AuthForm/SubmitButton";
+import { ChevronLeft } from "lucide-react";
 function AskProblem() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     tags: "",
   });
-
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
   const [errors, setErrors] = useState({});
@@ -70,7 +71,16 @@ function AskProblem() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-2xl mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-slate-500 hover:text-indigo-600 transition-colors font-medium text-sm"
+        >
+          <ChevronLeft size={16} className="mr-1" />
+          Back to Feed
+        </button>
+      </div>
       <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
         {/* Header Section */}
         <div className="bg-slate-900 p-6 text-white">
