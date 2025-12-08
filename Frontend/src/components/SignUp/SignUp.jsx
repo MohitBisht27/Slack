@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Mail, User, Lock } from "lucide-react";
 import { registerUser } from "../../api/PostApi";
 import { Link, useNavigate } from "react-router-dom";
-
+import FormInput from "../AuthForm/FormInput";
+import FormSelect from "../AuthForm/FormSelect";
+import FormTextarea from "../AuthForm/FormTextarea";
+import FileUpload from "../AuthForm/FileUpload";
+import SubmitButton from "../AuthForm/SubmitButton";
 export default function RegisterForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -90,127 +94,67 @@ export default function RegisterForm() {
             {message}
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                name="username"
-                placeholder="Enter Username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+          <FormInput
+            icon={<User />}
+            label="Username"
+            name="username"
+            placeholder="Enter Username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter Email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+          <FormInput
+            icon={<Mail />}
+            type="email"
+            label="Email"
+            name="email"
+            placeholder="Enter Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+          <FormInput
+            icon={<Lock />}
+            type="password"
+            label="Password"
+            name="password"
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
 
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-            </label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+          <FormSelect
+            label="Role"
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            options={[
+              { value: "user", label: "User" },
+              { value: "admin", label: "Admin" },
+            ]}
+          />
 
-          {/* Bio */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bio
-            </label>
-            <textarea
-              name="bio"
-              placeholder="Tell us about yourself..."
-              value={formData.bio}
-              onChange={handleChange}
-              rows="3"
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-          </div>
+          <FormTextarea
+            label="Bio"
+            name="bio"
+            placeholder="Tell us about yourself..."
+            value={formData.bio}
+            onChange={handleChange}
+          />
 
-          {/* Avatar Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Profile Picture
-            </label>
-            <input
-              type="file"
-              name="avatar"
-              accept="image/*"
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg file:bg-blue-50 file:text-blue-700 file:font-semibold file:rounded-full file:px-4 file:py-2 hover:file:bg-blue-100 cursor-pointer"
-            />
-          </div>
+          <FileUpload
+            label="Profile Picture"
+            name="avatar"
+            accept="image/*"
+            onChange={handleChange}
+          />
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-          >
-            {loading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Registering...
-              </>
-            ) : (
-              <>Sign Up</>
-            )}
-          </button>
+          <SubmitButton loading={loading} text="Sign Up" />
         </form>
-
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
           <Link
