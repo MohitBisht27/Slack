@@ -24,3 +24,11 @@ export const logoutUser = () => {
 export const getCurrentUser = () => {
   return api.get("/current-user");
 };
+
+export const updateUserAvatar = (formData) => {
+  return api.patch("/avatar", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

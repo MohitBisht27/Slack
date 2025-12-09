@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Users, Briefcase, Check } from "lucide-react";
-import { getCurrentUser } from "../../api/PostApi";
+import { Users, Briefcase, Check, Camera } from "lucide-react";
+import { getCurrentUser, updateUserAvatar } from "../../api/PostApi";
 
 export default function ProfileCard() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [user, setUser] = useState(null);
-
+  const [isUploading, setIsUploading] = useState(false);
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -18,6 +18,25 @@ export default function ProfileCard() {
     }
     fetchUser();
   }, []);
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("avatar", file);
+    try {
+      setIsUploading(true);
+      const response = await updateUserAvatar(formData);
+      setUser((prev) => ({
+        ...prev,
+        avatar: { url: response.data.data.avatar.url },
+      }));
+    } catch (error) {
+      console.error("Failed to update avatar:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   if (!user) {
     return (
@@ -33,10 +52,28 @@ export default function ProfileCard() {
         {/* Profile Image */}
         <div className="relative bg-gradient-to-br from-gray-300 to-gray-400 aspect-square">
           <img
-            src={user.avatar}
+            src={user.avatar?.url}
             alt="Profile"
             className="w-full h-full object-cover"
           />
+          <label
+            htmlFor="avatar-upload"
+            className="absolute bottom-4 right-4 bg-black/70 hover:bg-black text-white p-2 rounded-full cursor-pointer transition-all"
+          >
+            <Camera className="w-5 h-5" />
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+          </label>
+          {isUploading && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm">
+              Uploading...
+            </div>
+          )}
         </div>
 
         {/* Profile Info */}
