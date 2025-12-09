@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Users, Briefcase, Check, Camera } from "lucide-react";
-import { getCurrentUser, updateUserAvatar } from "../../api/PostApi";
+import { getCurrentUser, updateUserAvatar } from "../../api/UserApi";
 
 export default function ProfileCard() {
   const [isFollowing, setIsFollowing] = useState(false);

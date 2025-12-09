@@ -32,3 +32,11 @@ export const updateUserAvatar = (formData) => {
     },
   });
 };
+
+export const updateAccountDetails = (formData) => {
+  return api.patch("/update-account", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

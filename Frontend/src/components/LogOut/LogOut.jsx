@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../../api/PostApi";
+import { logoutUser } from "../../api/UserApi";
 
 export default function LogoutButton({ onLogout }) {
   const [loading, setLoading] = useState(false);

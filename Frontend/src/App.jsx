@@ -8,6 +8,7 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
+import UpdateInfo from "./components/InfoUpdate/UpdateInfo";
 import Layout from "./Layout";
 import Home from "./pages/Home";
 import ProfileCard from "./components/UserCard/UserCard";
@@ -19,6 +20,7 @@ const router = createBrowserRouter(
       <Route path="/ask-problem" element={<AskProblem />} />
       <Route path="/profile" element={<ProfileCard />} />
       <Route path="/comment" element={<CommentSection />} />
+      <Route path="/setting" element={<UpdateInfo />} />
       <Route path="/SigninForm" element={<SigninForm></SigninForm>}></Route>
       <Route
         path="/RegisterForm"

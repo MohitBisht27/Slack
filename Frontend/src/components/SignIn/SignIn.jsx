@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
-import { loginUser } from "../../api/PostApi";
+import { loginUser } from "../../api/UserApi";
 import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../AuthForm/FormInput";
 import SubmitButton from "../AuthForm/SubmitButton";
