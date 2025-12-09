@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
-
+import { v2 as cloudinary } from "cloudinary";
 const options = {
   httpOnly: true,
   secure: true,
@@ -43,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const user = await User.create({
     username,
-    avatar: avatar.url,
+    avatar: { url: avatar.url, public_id: avatar.public_id },
     email,
     password,
     role,
@@ -187,24 +187,50 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.user;
+  const { email, bio } = req.body;
+  console.log(email, bio);
   if (!email) {
-    throw new ApiError(400, "All fields are required");
+    throw new ApiError(400, "Email is required");
   }
   const user = await User.findByIdAndUpdate(
     req.user._id,
     {
       $set: {
-        email: email,
+        email,
+        bio,
       },
     },
     { new: true }
   ).select("-password");
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Account detail upda"));
+    .json(new ApiResponse(200, user, "Account detail updated"));
 });
 
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
+  if (!avatarLocalPath) throw new ApiError(400, "Avatar file is missing");
+
+  const user = await User.findById(req.user?._id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  if (user.avatar?.public_id) {
+    await cloudinary.uploader.destroy(user.avatar.public_id);
+  }
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatar?.url)
+    throw new ApiError(400, "Error while uploading cover image");
+
+  user.avatar = {
+    url: avatar.url,
+    public_id: avatar.public_id,
+  };
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Cover image updated successfully"));
+});
 export {
   registerUser,
   loggedInUser,
@@ -213,4 +239,5 @@ export {
   changeCurrentPassword,
   getCurrentUser,
   updateAccountDetails,
+  updateUserAvatar,
 };

@@ -36,9 +36,12 @@ const userSchema = new mongoose.Schema(
       maxlength: 200,
     },
     avatar: {
-      type: String,
-      default:
-        "https://res.cloudinary.com/demo/image/upload/v169232/avatar_default.png",
+      url: {
+        type: String,
+        default:
+          "https://res.cloudinary.com/demo/image/upload/v169232/avatar_default.png",
+      },
+      public_id: { type: String, default: "" },
     },
     role: {
       type: String,
