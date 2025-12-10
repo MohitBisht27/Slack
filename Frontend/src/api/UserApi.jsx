@@ -40,3 +40,11 @@ export const updateAccountDetails = (formData) => {
     },
   });
 };
+
+export const changeCurrentPassword = (data) => {
+  return api.post("/change-password", data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

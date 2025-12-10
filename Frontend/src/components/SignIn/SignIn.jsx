@@ -49,11 +49,7 @@ function SignIn() {
         "Something went wrong:",
         error.response?.data || error.message
       );
-      setMessage(
-        typeof error.response?.data === "string"
-          ? error.response.data
-          : "Invalid email or password."
-      );
+      setMessage("Invalid email or password.");
     } finally {
       setLoading(false);
     }
@@ -101,7 +97,14 @@ function SignIn() {
             onChange={handleChange}
             required
           />
-
+          <div className="text-right mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+            >
+              Forgot Password?
+            </Link>
+          </div>
           <SubmitButton loading={loading} text="Sign In" />
         </form>
 

@@ -40,6 +40,13 @@ export default function Header() {
                   >
                     View Profile
                   </NavLink>
+                  <NavLink
+                    onClick={() => setOpen(false)}
+                    to="/forgot-password"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  >
+                    Change Password
+                  </NavLink>
                   <Link
                     to="/setting"
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-50"

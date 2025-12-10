@@ -13,6 +13,7 @@ import Layout from "./Layout";
 import Home from "./pages/Home";
 import ProfileCard from "./components/UserCard/UserCard";
 import CommentSection from "./components/CommentCard/CommentCard";
+import ChangePassword from "./components/ChangePassword/ForgetPassword";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
@@ -20,6 +21,7 @@ const router = createBrowserRouter(
       <Route path="/ask-problem" element={<AskProblem />} />
       <Route path="/profile" element={<ProfileCard />} />
       <Route path="/comment" element={<CommentSection />} />
+      <Route path="/forgot-password" element={<ChangePassword />}></Route>
       <Route path="/setting" element={<UpdateInfo />} />
       <Route path="/SigninForm" element={<SigninForm></SigninForm>}></Route>
       <Route
