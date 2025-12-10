@@ -74,7 +74,7 @@ function AskProblem() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-2xl mb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/ask-problem")}
           className="flex items-center text-slate-500 hover:text-indigo-600 transition-colors font-medium text-sm"
         >
           <ChevronLeft size={16} className="mr-1" />
