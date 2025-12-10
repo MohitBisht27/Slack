@@ -3,7 +3,7 @@ import { Users, Briefcase, Check, Camera } from "lucide-react";
 import { getCurrentUser, updateUserAvatar } from "../../api/UserApi";
 
 export default function ProfileCard() {
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [tags, setTags] = useState([]);
   const [user, setUser] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   useEffect(() => {
@@ -11,7 +11,9 @@ export default function ProfileCard() {
       try {
         const response = await getCurrentUser();
         console.log(response.data);
+        console.log(response.data.data.tags);
         setUser(response.data.data);
+        setTags(response.data.data.tags);
       } catch (error) {
         console.log("Failed to fetch user", error);
       }
@@ -45,72 +47,61 @@ export default function ProfileCard() {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 rounded-3xl shadow-2xl overflow-hidden">
-        {/* Profile Image */}
-        <div className="relative bg-gradient-to-br from-gray-300 to-gray-400 aspect-square">
-          <img
-            src={user.avatar?.url}
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-          <label
-            htmlFor="avatar-upload"
-            className="absolute bottom-4 right-4 bg-black/70 hover:bg-black text-white p-2 rounded-full cursor-pointer transition-all"
-          >
-            <Camera className="w-5 h-5" />
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-lg overflow-hidden">
+        <div className="flex flex-col sm:flex-row">
+          {/* Profile Image Section */}
+          <div className="relative w-full sm:w-64 h-64 sm:h-auto flex-shrink-0">
+            <img
+              src={user.avatar?.url}
+              alt={user.username}
+              className="w-full h-full object-cover"
             />
-          </label>
-          {isUploading && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm">
-              Uploading...
-            </div>
-          )}
-        </div>
-
-        {/* Profile Info */}
-        <div className="p-6 space-y-4">
-          {/* Name*/}
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold text-white">{user.username}</h2>
-            <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <Check className="w-4 h-4 text-white" strokeWidth={3} />
-            </div>
+            <label
+              htmlFor="avatar-upload"
+              className="absolute bottom-4 right-4 bg-white hover:bg-gray-100 text-gray-700 p-2 rounded-full cursor-pointer transition-all shadow-md"
+            >
+              <Camera className="w-5 h-5" />
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </label>
+            {isUploading && (
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center text-gray-700 text-sm font-medium">
+                Uploading...
+              </div>
+            )}
           </div>
 
-          {/* Bio */}
-          <p className="text-gray-400 text-sm leading-relaxed">{user.bio}</p>
-
-          {/* Stats */}
-          <div className="flex items-center gap-6 text-sm">
+          {/* Profile Info Section */}
+          <div className="flex-1 p-8 space-y-6">
+            {/* Name with Flag */}
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-white font-medium">312</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-gray-400" />
-              <span className="text-white font-medium">48</span>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {user.username}
+              </h1>
             </div>
 
-            {/* Follow Button */}
-            <button
-              onClick={() => setIsFollowing(!isFollowing)}
-              className={`ml-auto px-6 py-2 rounded-full font-medium text-sm transition-all ${
-                isFollowing
-                  ? "bg-gray-700 text-white hover:bg-gray-600"
-                  : "bg-white text-gray-900 hover:bg-gray-100"
-              }`}
-            >
-              {isFollowing ? "Following" : "Follow"}
-            </button>
+            {/* Job Title */}
+            <p className="text-gray-600">{user.bio}</p>
+            <div className="space-y-3">
+              <p className="text-gray-700 font-medium">Helping with:</p>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm mr-2 mb-2 inline-block"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

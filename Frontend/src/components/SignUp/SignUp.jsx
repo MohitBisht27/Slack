@@ -44,13 +44,13 @@ export default function RegisterForm() {
       data.append("password", formData.password);
       data.append("role", formData.role);
       data.append("bio", formData.bio);
-      data.append(
-        "tags",
-        formData.tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter((t) => t)
-      );
+      const tagArray = formData.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t);
+
+      tagArray.forEach((tag) => data.append("tags", tag));
+
       if (formData.avatar) data.append("avatar", formData.avatar);
 
       {
