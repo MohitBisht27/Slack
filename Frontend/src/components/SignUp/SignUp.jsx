@@ -155,7 +155,7 @@ export default function RegisterForm() {
             onChange={handleChange}
           />
           <FormInput
-            label="Tags (comma separated)"
+            label="Skills (comma separated)"
             name="tags"
             placeholder="e.g. java, algorithms, data-structures"
             value={formData.tags}

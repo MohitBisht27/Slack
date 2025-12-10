@@ -9,7 +9,6 @@ import {
 import CommentCard from "../CommentCard/CommentCard";
 import AuthorInfo from "./AuthorInfo";
 export default function DoubtCard({ doubt }) {
-  const [expanded, setExpanded] = useState(false);
   const [solving, setSolving] = useState(false);
 
   return (
@@ -40,27 +39,8 @@ export default function DoubtCard({ doubt }) {
           <p className="text-slate-900 leading-relaxed">{doubt.content}</p>
         </div>
 
-        {expanded && (
-          <div className="bg-slate-50 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
-            <h3 className="text-sm font-medium text-slate-500 mb-2">
-              More Details
-            </h3>
-            <p className="text-slate-700 leading-relaxed text-sm">
-              {doubt.content || "No additional details provided."}
-            </p>
-          </div>
-        )}
-
         {/* Actions */}
         <div className="flex gap-3 pt-2">
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-4 h-4" />
-            {expanded ? "Hide Details" : "View Details"}
-          </button>
-
           <button
             onClick={() => setSolving(!solving)}
             className={`flex-1 ${

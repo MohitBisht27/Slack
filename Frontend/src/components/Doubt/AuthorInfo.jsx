@@ -4,7 +4,7 @@ export default function AuthorInfo({ doubt }) {
   return (
     <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
       <img
-        src={doubt.author?.avatar}
+        src={doubt.author?.avatar?.url}
         alt="Author"
         className="w-10 h-10 rounded-full object-cover"
       />
