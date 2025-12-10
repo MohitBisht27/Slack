@@ -17,6 +17,7 @@ export default function RegisterForm() {
     role: "user",
     bio: "",
     avatar: null,
+    tags: "",
   });
 
   const [message, setMessage] = useState("");
@@ -43,6 +44,13 @@ export default function RegisterForm() {
       data.append("password", formData.password);
       data.append("role", formData.role);
       data.append("bio", formData.bio);
+      data.append(
+        "tags",
+        formData.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t)
+      );
       if (formData.avatar) data.append("avatar", formData.avatar);
 
       {
@@ -146,7 +154,13 @@ export default function RegisterForm() {
             value={formData.bio}
             onChange={handleChange}
           />
-
+          <FormInput
+            label="Tags (comma separated)"
+            name="tags"
+            placeholder="e.g. java, algorithms, data-structures"
+            value={formData.tags}
+            onChange={handleChange}
+          />
           <FileUpload
             label="Profile Picture"
             name="avatar"

@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema(
       default: "",
       maxlength: 200,
     },
+    tags: [
+      {
+        type: String,
+      },
+    ],
     avatar: {
       url: {
         type: String,
