@@ -7,6 +7,7 @@ import FormSelect from "../AuthForm/FormSelect";
 import FormTextarea from "../AuthForm/FormTextarea";
 import FileUpload from "../AuthForm/FileUpload";
 import SubmitButton from "../AuthForm/SubmitButton";
+import FormPass from "../AuthForm/FormPass";
 export default function RegisterForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -116,7 +117,7 @@ export default function RegisterForm() {
             required
           />
 
-          <FormInput
+          <FormPass
             icon={<Lock />}
             type="password"
             label="Password"

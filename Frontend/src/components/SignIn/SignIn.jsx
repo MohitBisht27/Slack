@@ -4,6 +4,7 @@ import { loginUser } from "../../api/UserApi";
 import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../AuthForm/FormInput";
 import SubmitButton from "../AuthForm/SubmitButton";
+import FormPass from "../AuthForm/FormPass";
 function SignIn() {
   const navigate = useNavigate();
   const [user, setUserData] = useState({
@@ -90,7 +91,7 @@ function SignIn() {
             required
           />
 
-          <FormInput
+          <FormPass
             icon={<Lock />}
             type="password"
             name="password"
