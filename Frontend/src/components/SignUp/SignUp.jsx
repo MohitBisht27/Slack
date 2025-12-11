@@ -17,6 +17,7 @@ export default function RegisterForm() {
     role: "user",
     bio: "",
     avatar: null,
+    coverImage: null,
     tags: "",
   });
 
@@ -25,8 +26,8 @@ export default function RegisterForm() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "avatar") {
-      setFormData((prev) => ({ ...prev, avatar: files[0] }));
+    if (name === "avatar" || name === "coverImage") {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -52,10 +53,7 @@ export default function RegisterForm() {
       tagArray.forEach((tag) => data.append("tags", tag));
 
       if (formData.avatar) data.append("avatar", formData.avatar);
-
-      {
-        console.log(formData);
-      }
+      if (formData.coverImage) data.append("coverImage", formData.coverImage);
       const response = await registerUser(data);
 
       if (response.status === 201 || response.status === 200) {
@@ -69,24 +67,18 @@ export default function RegisterForm() {
           password: "",
           role: "user",
           bio: "",
-          avatar: "",
+          tags: "",
+          avatar: null,
+          coverImage: null,
         });
         setTimeout(() => {
           navigate("/SigninForm");
         }, 1500);
       } else {
-        setFormData({
-          username: "",
-          email: "",
-        });
         setMessage("User with email or username already exists.");
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setFormData({
-        username: "",
-        email: "",
-      });
       setMessage("User with email or username already exists.");
     } finally {
       setLoading(false);
@@ -175,7 +167,12 @@ export default function RegisterForm() {
             accept="image/*"
             onChange={handleChange}
           />
-
+          <FileUpload
+            label="Cover Image"
+            name="coverImage"
+            accept="image/*"
+            onChange={handleChange}
+          />
           <SubmitButton loading={loading} text="Sign Up" />
         </form>
         <p className="text-center text-sm text-gray-600 mt-4">

@@ -48,6 +48,13 @@ const userSchema = new mongoose.Schema(
       },
       public_id: { type: String, default: "" },
     },
+    coverImage: {
+      url: {
+        type: String,
+        default: "",
+      },
+      public_id: { type: String, default: "" },
+    },
     role: {
       type: String,
       enum: ["user", "admin"],

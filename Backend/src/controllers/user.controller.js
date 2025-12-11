@@ -36,14 +36,25 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const avatarLocalPath = req.files?.avatar?.[0]?.path;
-
+  const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
   const avatar = await uploadOnCloudinary(avatarLocalPath);
+  let coverImage = { url: "", public_id: "" };
+  if (coverImageLocalPath) {
+    const uploadedCover = await uploadOnCloudinary(coverImageLocalPath);
+    if (uploadedCover) {
+      coverImage = {
+        url: uploadedCover.url,
+        public_id: uploadedCover.public_id,
+      };
+    }
+  }
   const user = await User.create({
     username,
     avatar: { url: avatar.url, public_id: avatar.public_id },
+    coverImage,
     email,
     password,
     role,
@@ -233,6 +244,34 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  const coverImageLocalPath = req.file?.path;
+  if (!coverImageLocalPath)
+    throw new ApiError(400, "Cover image file is missing");
+
+  const user = await User.findById(req.user?._id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  // Delete old cover image from cloudinary if it exists
+  if (user.coverImage?.public_id) {
+    await cloudinary.uploader.destroy(user.coverImage.public_id);
+  }
+
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+  if (!coverImage?.url)
+    throw new ApiError(400, "Error while uploading cover image");
+
+  user.coverImage = {
+    url: coverImage.url,
+    public_id: coverImage.public_id,
+  };
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Cover image updated successfully"));
+});
 export {
   registerUser,
   loggedInUser,
@@ -242,4 +281,5 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
+  updateUserCoverImage,
 };

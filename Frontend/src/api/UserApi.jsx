@@ -32,7 +32,13 @@ export const updateUserAvatar = (formData) => {
     },
   });
 };
-
+export const updateUserCoverImage = (formData) => {
+  return api.patch("/cover-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 export const updateAccountDetails = (formData) => {
   return api.patch("/update-account", formData, {
     headers: {
