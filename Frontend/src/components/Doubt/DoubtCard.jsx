@@ -5,12 +5,38 @@ import {
   MessageCircle,
   CheckCircle,
   XCircle,
+  Trash2,
 } from "lucide-react";
-import CommentCard from "../CommentCard/CommentCard";
-import AuthorInfo from "./AuthorInfo";
-export default function DoubtCard({ doubt }) {
-  const [solving, setSolving] = useState(false);
 
+import CommentCard from "../CommentCard/CommentCard";
+import { deleteProblem } from "../../api/ProblemApi";
+import AuthorInfo from "./AuthorInfo";
+export default function DoubtCard({ doubt, currentUser, onDeleteSuccess }) {
+  const [solving, setSolving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState(null);
+  const canDelete = currentUser && doubt.author?._id === currentUser._id;
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await deleteProblem(doubt._id);
+      if (response.status === 200) {
+        setDeleteMessage({ type: "success", text: "Deleted successfully!" });
+        onDeleteSuccess?.();
+      } else {
+        setDeleteMessage({ type: "error", text: "Failed to delete doubt." });
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      setDeleteMessage({ type: "error", text: "Something went wrong." });
+    } finally {
+      setIsDeleting(false);
+      setConfirmDelete(false);
+      setTimeout(() => setDeleteMessage(null), 3000);
+    }
+  };
   return (
     <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Header */}
@@ -59,19 +85,59 @@ export default function DoubtCard({ doubt }) {
               </>
             )}
           </button>
+          {canDelete && (
+            <>
+              {!confirmDelete ? (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete
+                </button>
+              ) : (
+                <div className="flex-1 flex items-center gap-2 justify-between">
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Confirm Delete"
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="flex-1 border border-slate-300 text-slate-600 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-slate-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
+        {deleteMessage && (
+          <div
+            className={`mt-4 p-3 rounded-xl text-center text-sm ${
+              deleteMessage.type === "success"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {deleteMessage.text}
+          </div>
+        )}
 
         {solving && (
           <div className="mt-6 border-t border-slate-200 pt-4 animate-in fade-in slide-in-from-top-2">
             <CommentCard articleId={doubt._id} />
           </div>
         )}
-      </div>
-
-      <div className="bg-slate-50 px-6 py-3 flex items-center justify-end text-sm text-slate-600 border-t border-slate-100">
-        <span className="text-xs bg-slate-200 px-3 py-1 rounded-full">
-          Views: {doubt.views}
-        </span>
       </div>
     </div>
   );

@@ -87,4 +87,34 @@ const getArticlesByUser = asyncHandler(async (req, res) => {
     );
 });
 
-export { addArticle, getAllArticles, getMyArticles, getArticlesByUser };
+const deleteArticle = asyncHandler(async (req, res) => {
+  const { articleId } = req.params;
+  const userId = req.user?._id;
+
+  if (!articleId) {
+    throw new ApiError(400, "Article ID is required");
+  }
+
+  const article = await Article.findById(articleId);
+
+  if (!article) {
+    throw new ApiError(404, "Article not found");
+  }
+
+  if (article.author.toString() !== userId.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this article");
+  }
+
+  await Article.findByIdAndDelete(articleId);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Article deleted successfully"));
+});
+export {
+  addArticle,
+  getAllArticles,
+  getMyArticles,
+  getArticlesByUser,
+  deleteArticle,
+};

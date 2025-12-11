@@ -15,14 +15,6 @@ export const getAllProblem = () => {
   return api.get("/getAllArticles");
 };
 
-//Testing
-// export const addProblem = (data) => {
-//   const token =
-//
-//   return api.post("/article", data, {
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-// };
+export const deleteProblem = (articleId) => {
+  return api.delete(`/${articleId}`);
+};
