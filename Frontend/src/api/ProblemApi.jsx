@@ -18,3 +18,7 @@ export const getAllProblem = () => {
 export const deleteProblem = (articleId) => {
   return api.delete(`/${articleId}`);
 };
+
+export const getMyProblems = () => {
+  return api.get("/getMyArticles");
+};

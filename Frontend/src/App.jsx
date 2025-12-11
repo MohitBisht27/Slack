@@ -11,7 +11,7 @@ import {
 import UpdateInfo from "./components/InfoUpdate/UpdateInfo";
 import Layout from "./Layout";
 import Home from "./pages/Home";
-import ProfileCard from "./components/UserCard/UserCard";
+import ProfilePage from "./pages/UserProfile";
 import CommentSection from "./components/CommentCard/CommentCard";
 import ChangePassword from "./components/ChangePassword/ForgetPassword";
 const router = createBrowserRouter(
@@ -19,7 +19,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<Layout />}>
       <Route index element={<Home />}></Route>
       <Route path="/ask-problem" element={<AskProblem />} />
-      <Route path="/profile" element={<ProfileCard />} />
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="/comment" element={<CommentSection />} />
       <Route path="/forgot-password" element={<ChangePassword />}></Route>
       <Route path="/setting" element={<UpdateInfo />} />
