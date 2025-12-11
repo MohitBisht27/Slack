@@ -188,7 +188,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { email, bio } = req.body;
+  const { email, bio, tags } = req.body;
   console.log(email, bio);
   if (!email) {
     throw new ApiError(400, "Email is required");
@@ -199,6 +199,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
       $set: {
         email,
         bio,
+        tags,
       },
     },
     { new: true }

@@ -2,12 +2,15 @@ import { useState } from "react";
 import { Mail, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { updateAccountDetails } from "../../api/UserApi";
-
+import FormInput from "../AuthForm/FormInput";
+import FormTextarea from "../AuthForm/FormTextarea";
+import SubmitButton from "../AuthForm/SubmitButton";
 function UpdateInfo() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     bio: "",
+    tags: "",
   });
 
   const [charCount, setCharCount] = useState(0);
@@ -16,16 +19,31 @@ function UpdateInfo() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === "bio") setCharCount(value.length);
+    if (name == "tags") {
+      console.log("Tags input value", value);
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const tagsArray = formData.tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
     try {
-      const response = await updateAccountDetails(formData);
+      const payload = {
+        email: formData.email,
+        bio: formData.bio,
+        tags: tagsArray,
+      };
+      const response = await updateAccountDetails(payload);
       if (response.status === 200 || response.status === 201) {
         console.log("Updated Successfully");
-        setFormData({ email: "", bio: "" });
+        setFormData({ email: "", bio: "", tags: "" });
+        setCharCount(0);
         setTimeout(() => navigate("/profile"), 1500);
+      } else {
+        console.error("❌ Update failed:", response);
       }
     } catch (error) {
       console.error("Update failed:", error);
@@ -49,54 +67,41 @@ function UpdateInfo() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
-            </div>
-          </div>
+          <FormInput
+            icon={<Mail />}
+            type="email"
+            label="Email"
+            name="email"
+            placeholder="Enter Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-          {/* Bio Textarea */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bio
-            </label>
-            <textarea
+            <FormTextarea
+              label="Bio"
               name="bio"
               placeholder="Tell us about yourself..."
               value={formData.bio}
               onChange={handleChange}
-              maxLength={500}
-              rows={5}
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            ></textarea>
+            />{" "}
             <p className="text-xs text-gray-400 mt-1 flex justify-between">
               <span>
                 Share your interests, background, or what makes you unique
               </span>
-              <span>{charCount}/500</span>
+              <span>{charCount}/200</span>
             </p>
           </div>
-
+          <FormInput
+            label="Skills (comma separated)"
+            name="tags"
+            placeholder="e.g. java, algorithms, data-structures"
+            value={formData.tags}
+            onChange={handleChange}
+          />
           {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2.5 rounded-lg font-semibold hover:opacity-90 transition"
-          >
-            Update Profile
-          </button>
+          <SubmitButton text="Update Detail" />
         </form>
 
         <p className="text-center text-xs text-gray-400 mt-6">

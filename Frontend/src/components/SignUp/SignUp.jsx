@@ -75,11 +75,19 @@ export default function RegisterForm() {
           navigate("/SigninForm");
         }, 1500);
       } else {
-        setMessage("Registration failed. Please try again.");
+        setFormData({
+          username: "",
+          email: "",
+        });
+        setMessage("User with email or username already exists.");
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setMessage("Registration failed. Please try again.");
+      setFormData({
+        username: "",
+        email: "",
+      });
+      setMessage("User with email or username already exists.");
     } finally {
       setLoading(false);
     }
