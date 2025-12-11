@@ -119,7 +119,7 @@ function CommentCard({ articleId }) {
         {/* User Info */}
         <div className="flex items-center gap-3 mb-2">
           <img
-            src={c.owner?.avatar || "https://via.placeholder.com/40"}
+            src={c.owner?.avatar?.url || "https://via.placeholder.com/40"}
             alt="avatar"
             className="w-8 h-8 rounded-full"
           />
