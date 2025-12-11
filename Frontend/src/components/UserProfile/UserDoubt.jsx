@@ -6,7 +6,7 @@ import MyDoubtCard from "./ProfileDoubtCard.jsx";
 export default function MyDoubtsFeed() {
   const [myDoubts, setMyDoubts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [setError] = useState(null);
 
   useEffect(() => {
     const fetchMyDoubts = async () => {
@@ -33,12 +33,12 @@ export default function MyDoubtsFeed() {
       </div>
     );
 
-  if (error)
-    return (
-      <div className="py-16 flex items-center justify-center text-red-500">
-        {error}
-      </div>
-    );
+  // if (error)
+  //   return (
+  //     <div className="py-16 flex items-center justify-center text-red-500">
+  //       {error}
+  //     </div>
+  //   );
 
   if (!myDoubts.length)
     return (

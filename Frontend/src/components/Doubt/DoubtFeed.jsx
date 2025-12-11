@@ -7,7 +7,7 @@ export default function DoubtFeed() {
   const [doubts, setDoubts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [setError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -43,14 +43,6 @@ export default function DoubtFeed() {
         Loading doubts...
       </div>
     );
-
-  if (error)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        {error}
-      </div>
-    );
-
   if (!doubts.length)
     return (
       <div className="min-h-screen flex items-center justify-center text-slate-500">
