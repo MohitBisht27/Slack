@@ -26,9 +26,11 @@ import userRouter from "./routes/user.routes.js";
 import articleRoute from "./routes/article.routes.js";
 import likeRoute from "./routes/like.routes.js";
 import commentRoute from "./routes/comment.route.js";
+import userMediaRoute from "./routes/doubtMedia.routes.js";
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/userArticle", articleRoute);
 app.use("/api/v1/userLike", likeRoute);
 app.use("/api/v1/comments", commentRoute);
+app.use("/api/v1/mediaRoute", userMediaRoute);
 
 export { app };

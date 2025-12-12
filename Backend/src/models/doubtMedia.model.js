@@ -27,8 +27,7 @@ const mediaSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-mediaSchema.index({ title: "text", tags: 1, user: 1 });
+mediaSchema.index({ title: "text", description: "text" });
 
 const DoubtMedia = mongoose.model("DoubtMedia", mediaSchema);
 
