@@ -101,14 +101,7 @@ export default function DoubtCard({ doubt, currentUser, onDeleteSuccess }) {
                     disabled={isDeleting}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                   >
-                    {isDeleting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      "Confirm Delete"
-                    )}
+                    {isDeleting ? <>Deleting...</> : "Confirm Delete"}
                   </button>
                   <button
                     onClick={() => setConfirmDelete(false)}
