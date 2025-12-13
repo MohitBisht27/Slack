@@ -12,3 +12,7 @@ export const addDoubtMedia = async (data) => {
     },
   });
 };
+
+export const getReels = async (page = 1, limit = 5) => {
+  return api.get(`/reels?page=${page}&limit=${limit}`);
+};
