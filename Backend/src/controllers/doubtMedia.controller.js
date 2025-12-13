@@ -75,4 +75,53 @@ const addDoubtMedia = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, populatedDoubt, "Doubt posted successfully"));
 });
 
-export { addDoubtMedia };
+const getReel = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const reels = await DoubtMedia.aggregate([
+    { $match: { mediaType: "video" } },
+    { $sample: { size: 100 } },
+    { $skip: skip },
+    { $limit: limit },
+  ]);
+  if (!reels || reels.length === 0) {
+    throw new ApiError(404, "No reels found for this page");
+  }
+  const populatedReels = await DoubtMedia.populate(reels, {
+    path: "user",
+    select: "username avatar",
+  });
+
+  const formattedReels = populatedReels.map((item) => ({
+    _id: item._id,
+    title: item.title,
+    description: item.description,
+    videoUrl: item.video,
+    tags: item.tags,
+    user: item.user,
+    createdAt: item.createdAt,
+    likes: item.likes || 0,
+  }));
+
+  const totalVideos = await DoubtMedia.countDocuments({ mediaType: "video" });
+  const totalPages = Math.ceil(totalVideos / limit);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        reels: formattedReels,
+        pagination: {
+          page,
+          limit,
+          totalPages,
+          hasNextPage: page < totalPages,
+        },
+      },
+      "Reels fetched successfully"
+    )
+  );
+});
+
+export { addDoubtMedia, getReel };
