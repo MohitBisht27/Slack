@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import ProfilePage from "./pages/UserProfile";
 import CommentSection from "./components/CommentCard/CommentCard";
 import ChangePassword from "./components/ChangePassword/ForgetPassword";
+import AddDoubtMediaForm from "./components/DoubtMedia/MediaForm";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
       <Route path="/ask-problem" element={<AskProblem />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/comment" element={<CommentSection />} />
+      <Route path="/mediaForm" element={<AddDoubtMediaForm />} />
       <Route path="/forgot-password" element={<ChangePassword />}></Route>
       <Route path="/setting" element={<UpdateInfo />} />
       <Route path="/SigninForm" element={<SigninForm></SigninForm>}></Route>

@@ -51,7 +51,7 @@ export default function Home() {
           </button>
 
           <button
-            onClick={handleClick}
+            onClick={() => navigate("/mediaForm")}
             className="flex items-center gap-2 text-slate-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-xl transition-all text-sm font-semibold group"
           >
             <div className="p-1.5 rounded-lg bg-sky-100 text-sky-600 group-hover:bg-sky-200 transition-colors">
