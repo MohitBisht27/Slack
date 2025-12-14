@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import UpdateInfo from "./components/InfoUpdate/UpdateInfo";
 import Layout from "./Layout";
-import Home from "./pages/Home";
+import Home from "./pages/Doubt";
 import ProfilePage from "./pages/UserProfile";
 import CommentSection from "./components/CommentCard/CommentCard";
 import ChangePassword from "./components/ChangePassword/ForgetPassword";
