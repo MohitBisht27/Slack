@@ -1,12 +1,19 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+
 function Layout() {
+  const location = useLocation();
+
+  const hideLayoutPaths = ["/SigninForm", "/RegisterForm"];
+
+  const shouldHideLayout = hideLayoutPaths.includes(location.pathname);
+
   return (
     <div>
-      <Header />
+      {!shouldHideLayout && <Header />}
       <Outlet />
-      <Footer />
+      {!shouldHideLayout && <Footer />}
     </div>
   );
 }
