@@ -1,125 +1,162 @@
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import LogoutButton from "./LogOut/LogOut";
+import { useAuth } from "../context/AuthContext";
+
 export default function Header() {
+  const { user, isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+
+  const navLinkClass = ({ isActive }) =>
+    `block py-2 px-3 duration-200 ${
+      isActive ? "text-orange-700" : "text-gray-700"
+    } hover:text-orange-700`;
+
   return (
-    <header className="shadow sticky z-50 top-0 bg-white">
-      <nav className="border-gray-200 px-4 lg:px-6 py-2.5">
-        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img
-              src="https://images.pexels.com/photos/430205/pexels-photo-430205.jpeg?auto=compress&cs=tinysrgb&w=600"
-              className="mr-3 h-12 rounded-full"
-              alt="Logo"
-            />
-          </Link>
-          <div className="flex items-center space-x-4 lg:order-2">
-            {/* Profile Section */}
+    <header className="shadow sticky top-0 z-50 bg-white">
+      <nav className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center">
+          <img
+            src="https://images.pexels.com/photos/430205/pexels-photo-430205.jpeg?auto=compress&cs=tinysrgb&w=600"
+            className="h-10 rounded-full"
+            alt="Logo"
+          />
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex gap-8 items-center">
+          <NavLink to="/" className={navLinkClass}>
+            Home
+          </NavLink>
+          <NavLink to="/ask-problem" className={navLinkClass}>
+            Ask Problem
+          </NavLink>
+          <NavLink to="/reel" className={navLinkClass}>
+            Reel
+          </NavLink>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center gap-3">
+          {/* Authenticated User */}
+          {isAuthenticated && (
             <div className="relative">
               <button
                 onClick={() => setOpen(!open)}
-                className="flex items-center space-x-2 focus:outline-none"
+                className="flex items-center gap-2"
               >
                 <img
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full border border-gray-300"
+                  src={
+                    user?.avatar?.url ||
+                    "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                  }
+                  className="w-9 h-9 rounded-full border"
+                  alt="profile"
                 />
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+                <ChevronDown size={16} />
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-lg py-2 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-2">
                   <NavLink
-                    onClick={() => setOpen(false)}
                     to="/profile"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 hover:bg-gray-50"
                   >
                     View Profile
                   </NavLink>
                   <NavLink
-                    onClick={() => setOpen(false)}
                     to="/forgot-password"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 hover:bg-gray-50"
                   >
                     Change Password
                   </NavLink>
-                  <Link
+                  <NavLink
                     to="/setting"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 hover:bg-gray-50"
                   >
                     Settings
-                  </Link>
-                  <hr className="my-1" />
+                  </NavLink>
+                  <hr />
                   <LogoutButton onLogout={() => setOpen(false)} />
                 </div>
               )}
             </div>
+          )}
 
-            {/* Buttons */}
-            <Link
-              to="/SigninForm"
-              className="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 focus:outline-none"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/RegisterForm"
-              className="text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 focus:outline-none"
-            >
-              Get started
-            </Link>
-          </div>
+          {/* Not Authenticated */}
+          {!isAuthenticated && (
+            <div className="hidden lg:flex gap-2">
+              <Link
+                to="/SigninForm"
+                className="px-4 py-2 text-sm rounded-lg hover:bg-gray-100"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/RegisterForm"
+                className="px-4 py-2 text-sm rounded-lg bg-orange-700 text-white hover:bg-orange-800"
+              >
+                Get started
+              </Link>
+            </div>
+          )}
 
-          {/* Navigation Links */}
-          <div
-            className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1"
-            id="mobile-menu-2"
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden"
+            onClick={() => setMobileMenu(!mobileMenu)}
           >
-            <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-              <li>
-                <NavLink
-                  to="/"
-                  className={({ isActive }) =>
-                    `block py-2 pr-4 pl-3 duration-200 ${
-                      isActive ? "text-orange-700" : "text-gray-700"
-                    } hover:text-orange-700 lg:p-0`
-                  }
-                >
-                  Home
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/ask-problem"
-                  className={({ isActive }) =>
-                    `block py-2 pr-4 pl-3 duration-200 ${
-                      isActive ? "text-orange-700" : "text-gray-700"
-                    } hover:text-orange-700 lg:p-0`
-                  }
-                >
-                  Ask Problem
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/reel"
-                  className={({ isActive }) =>
-                    `block py-2 pr-4 pl-3 duration-200 ${
-                      isActive ? "text-orange-700" : "text-gray-700"
-                    } hover:text-orange-700 lg:p-0`
-                  }
-                >
-                  Reel
-                </NavLink>
-              </li>
-            </ul>
-          </div>
+            {mobileMenu ? <X /> : <Menu />}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenu && (
+        <div className="lg:hidden bg-white border-t px-4 py-3 space-y-2">
+          <NavLink
+            to="/"
+            onClick={() => setMobileMenu(false)}
+            className={navLinkClass}
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/ask-problem"
+            onClick={() => setMobileMenu(false)}
+            className={navLinkClass}
+          >
+            Ask Problem
+          </NavLink>
+          <NavLink
+            to="/reel"
+            onClick={() => setMobileMenu(false)}
+            className={navLinkClass}
+          >
+            Reel
+          </NavLink>
+
+          {!isAuthenticated && (
+            <>
+              <Link to="/SigninForm" className="block py-2">
+                Log in
+              </Link>
+              <Link
+                to="/RegisterForm"
+                className="block py-2 text-orange-700 font-medium"
+              >
+                Get started
+              </Link>
+            </>
+          )}
+        </div>
+      )}
     </header>
   );
 }
