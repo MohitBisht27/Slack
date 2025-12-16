@@ -5,7 +5,9 @@ import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../components/AuthForm/FormInput";
 import SubmitButton from "../components/AuthForm/SubmitButton";
 import FormPass from "../components/AuthForm/FormPass";
+import { useAuth } from "../context/AuthContext";
 function SignIn() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [user, setUserData] = useState({
     email: "",
@@ -28,10 +30,7 @@ function SignIn() {
       const response = await loginUser(user);
 
       if (response.status === 200 || response.status === 201) {
-        console.log(response.data.accessToken);
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("accessToken", response.data.accessToken);
-
+        login(response.data.data.user);
         setMessage("Login successful! Redirecting...");
         console.log("Login successful!");
         setUserData({

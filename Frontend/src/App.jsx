@@ -1,6 +1,6 @@
 import AskProblem from "./components/Editor/DoubtEditor";
-import SigninForm from "./components/SignIn/SignIn";
-import RegisterForm from "./components/SignUp/SignUp";
+import SigninForm from "./pages/SignIn";
+import RegisterForm from "./pages/SignUp";
 import { useState, useEffect } from "react";
 import {
   Router,
@@ -19,6 +19,7 @@ import AddDoubtMediaForm from "./components/DoubtMedia/MediaForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Reel from "./pages/Reel";
 import { AuthContextProvider } from "./context/AuthContext";
+import { getCurrentUser, logoutUser } from "./api/UserApi";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
@@ -79,24 +80,44 @@ const router = createBrowserRouter(
     </Route>
   )
 );
-
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    async function fetchUser() {
+      try {
+        const res = await getCurrentUser();
+        setUser(res.data.data);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUser();
   }, []);
+
   const login = (userData) => {
-    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
-  const logout = () => {
-    localStorage.removeItem("user");
+
+  const logout = async () => {
+    await logoutUser();
     setUser(null);
   };
-  const isAuthenticated = !!user;
+
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <AuthContextProvider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContextProvider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        logout,
+      }}
+    >
       <RouterProvider router={router} />
     </AuthContextProvider>
   );
