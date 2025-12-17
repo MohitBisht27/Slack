@@ -31,6 +31,9 @@ export default function Header() {
           <NavLink to="/" className={navLinkClass}>
             Home
           </NavLink>
+          <NavLink to="/doubtFeed" className={navLinkClass}>
+            Doubt
+          </NavLink>
           <NavLink to="/ask-problem" className={navLinkClass}>
             Ask Problem
           </NavLink>

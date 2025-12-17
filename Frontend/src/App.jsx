@@ -3,7 +3,6 @@ import SigninForm from "./pages/SignIn";
 import RegisterForm from "./pages/SignUp";
 import { useState, useEffect } from "react";
 import {
-  Router,
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
@@ -11,7 +10,7 @@ import {
 } from "react-router-dom";
 import UpdateInfo from "./components/InfoUpdate/UpdateInfo";
 import Layout from "./Layout";
-import Home from "./pages/Doubt";
+import Doubt from "./pages/Doubt";
 import ProfilePage from "./pages/UserProfile";
 import CommentSection from "./components/CommentCard/CommentCard";
 import ChangePassword from "./components/ChangePassword/ForgetPassword";
@@ -20,10 +19,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Reel from "./pages/Reel";
 import { AuthContextProvider } from "./context/AuthContext";
 import { getCurrentUser, logoutUser } from "./api/UserApi";
+import Landing from "./pages/Landing";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
-      <Route index element={<Home />} />
+      <Route index element={<Landing />} />
       <Route path="/SigninForm" element={<SigninForm />} />
       <Route path="/RegisterForm" element={<RegisterForm />} />
       <Route path="/forgot-password" element={<ChangePassword />} />
@@ -34,6 +34,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <AskProblem />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doubtFeed"
+        element={
+          <ProtectedRoute>
+            <Doubt />
           </ProtectedRoute>
         }
       />
