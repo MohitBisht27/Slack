@@ -32,15 +32,45 @@ const createComment = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, comment, "Comment created successfully"));
 });
 
+const buildCommentTree = (flatComments) => {
+  const commentMap = {};
+  const rootReplies = [];
+
+  flatComments.forEach((c) => {
+    c.replies = [];
+    commentMap[c._id.toString()] = c;
+  });
+
+  flatComments.forEach((c) => {
+    if (c.parentComment) {
+      const parentId = c.parentComment._id || c.parentComment;
+      const parent = commentMap[parentId.toString()];
+      if (parent) {
+        parent.replies.push(c);
+        parent.replies.sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+      } else {
+        rootReplies.push(c);
+      }
+    } else {
+      rootReplies.push(c);
+    }
+  });
+
+  return rootReplies;
+};
+
 const getCommentsForArticle = asyncHandler(async (req, res) => {
   const { articleId } = req.params;
   const { page = 1, limit = 10 } = req.query;
-  const pageNumber = parseInt(page);
-  const limitNumber = parseInt(limit);
+  const userId = req.user?._id
+    ? new mongoose.Types.ObjectId(req.user._id)
+    : null;
 
-  if (!isValidObjectId(articleId)) {
+  if (!isValidObjectId(articleId))
     throw new ApiError(400, "Invalid article ID");
-  }
+
   const aggregateQuery = Comment.aggregate([
     {
       $match: {
@@ -48,6 +78,7 @@ const getCommentsForArticle = asyncHandler(async (req, res) => {
         parentComment: null,
       },
     },
+
     {
       $lookup: {
         from: "users",
@@ -58,66 +89,125 @@ const getCommentsForArticle = asyncHandler(async (req, res) => {
       },
     },
     { $unwind: "$owner" },
+
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "comment",
+        as: "likes",
+      },
+    },
+    {
+      $addFields: {
+        likesCount: { $size: "$likes" },
+        isLiked: {
+          $cond: {
+            if: { $eq: [userId, null] },
+            then: false,
+            else: { $in: [userId, "$likes.likeBy"] },
+          },
+        },
+      },
+    },
+
     {
       $graphLookup: {
         from: "comments",
         startWith: "$_id",
         connectFromField: "_id",
         connectToField: "parentComment",
-        as: "replies",
+        as: "flatReplies",
         depthField: "depth",
       },
     },
+
     {
       $lookup: {
         from: "users",
-        localField: "replies.owner",
+        localField: "flatReplies.owner",
         foreignField: "_id",
         as: "replyOwners",
         pipeline: [{ $project: { username: 1, avatar: 1 } }],
       },
     },
     {
-      $addFields: {
-        replies: {
-          $map: {
-            input: "$replies",
-            as: "reply",
-            in: {
-              _id: "$$reply._id",
-              content: "$$reply.content",
-              parentComment: "$$reply.parentComment",
-              createdAt: "$$reply.createdAt",
-              depth: "$$reply.depth",
-              owner: {
-                $arrayElemAt: [
-                  {
-                    $filter: {
-                      input: "$replyOwners",
-                      as: "user",
-                      cond: { $eq: ["$$user._id", "$$reply.owner"] },
-                    },
-                  },
-                  0,
-                ],
-              },
-            },
-          },
-        },
+      $lookup: {
+        from: "likes",
+        localField: "flatReplies._id",
+        foreignField: "comment",
+        as: "replyLikes",
       },
     },
+    {
+      $project: {
+        content: 1,
+        owner: 1,
+        createdAt: 1,
+        likesCount: 1,
+        isLiked: 1,
+        flatReplies: 1,
+        replyOwners: 1,
+        replyLikes: 1,
+      },
+    },
+
     { $sort: { createdAt: -1 } },
   ]);
+
   const options = {
-    page: pageNumber,
-    limit: limitNumber,
+    page: parseInt(page),
+    limit: parseInt(limit),
   };
 
   const result = await Comment.aggregatePaginate(aggregateQuery, options);
 
+  const docs = result.docs.map((topLevelComment) => {
+    const formattedReplies = topLevelComment.flatReplies.map((reply) => {
+      const owner = topLevelComment.replyOwners.find(
+        (u) => u._id.toString() === reply.owner.toString()
+      );
+
+      const likes = topLevelComment.replyLikes.filter(
+        (l) => l.comment.toString() === reply._id.toString()
+      );
+      const isLiked = userId
+        ? likes.some((l) => l.likeBy.toString() === userId.toString())
+        : false;
+
+      return {
+        ...reply,
+        owner: owner || { username: "Unknown", avatar: "" },
+        likesCount: likes.length,
+        isLiked: isLiked,
+        replies: [],
+      };
+    });
+
+    const replyTree = buildCommentTree(formattedReplies);
+
+    const directChildren = formattedReplies.filter(
+      (r) => r.parentComment.toString() === topLevelComment._id.toString()
+    );
+
+    directChildren.sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+
+    return {
+      ...topLevelComment,
+      replies: directChildren,
+      flatReplies: undefined,
+      replyOwners: undefined,
+      replyLikes: undefined,
+    };
+  });
+
   return res
     .status(200)
-    .json(new ApiResponse(200, result, "Comments fetched successfully"));
+    .json(
+      new ApiResponse(200, { ...result, docs }, "Comments fetched successfully")
+    );
 });
 
 const updateComment = asyncHandler(async (req, res) => {
@@ -177,7 +267,10 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   const comment = await Comment.findById(commentId);
   if (!comment) throw new ApiError(404, "Comment not found");
 
-  const existingLike = await Like.findOne({ comment: commentId, user: userId });
+  const existingLike = await Like.findOne({
+    comment: commentId,
+    likeBy: userId,
+  });
 
   if (existingLike) {
     await existingLike.deleteOne();
@@ -185,7 +278,11 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { liked: false }, "Comment unliked"));
   } else {
-    await Like.create({ comment: commentId, user: userId });
+    await Like.create({
+      comment: commentId,
+      likeBy: userId,
+      article: comment.article,
+    });
     return res
       .status(200)
       .json(new ApiResponse(200, { liked: true }, "Comment liked"));

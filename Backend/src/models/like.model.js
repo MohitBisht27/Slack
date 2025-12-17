@@ -13,10 +13,9 @@ const likeSchema = new Schema(
     likeBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
   },
   { timestamps: true }
 );
-
+likeSchema.index({ comment: 1, likeBy: 1 }, { unique: true });
 export const Like = mongoose.model("Like", likeSchema);
