@@ -65,7 +65,7 @@ export default function AddDoubtMediaForm() {
           video: null,
         });
 
-        setTimeout(() => navigate("/reels"), 1200);
+        setTimeout(() => navigate(-1), 1200);
       } else {
         setMessage("Something went wrong while posting.");
       }
