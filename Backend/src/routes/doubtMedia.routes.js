@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addDoubtMedia,
+  getImages,
   getReel,
 } from "../controllers/doubtMedia.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -17,4 +18,5 @@ router.route("/add").post(
   addDoubtMedia
 );
 router.route("/reels").get(getReel);
+router.route("/image").get(getImages);
 export default router;

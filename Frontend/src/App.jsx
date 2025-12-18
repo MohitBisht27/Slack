@@ -16,10 +16,12 @@ import CommentSection from "./components/CommentCard/CommentCard";
 import ChangePassword from "./components/ChangePassword/ForgetPassword";
 import AddDoubtMediaForm from "./components/DoubtMedia/MediaForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ImageDoubtFeed from "./components/DoubtImage/ImageFeed";
 import Reel from "./pages/Reel";
 import { AuthContextProvider } from "./context/AuthContext";
 import { getCurrentUser, logoutUser } from "./api/UserApi";
 import Landing from "./pages/Landing";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />}>
@@ -66,6 +68,14 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute>
             <Reel />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/imageFeed"
+        element={
+          <ProtectedRoute>
+            <ImageDoubtFeed />
           </ProtectedRoute>
         }
       />

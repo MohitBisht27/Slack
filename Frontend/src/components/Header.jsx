@@ -40,6 +40,9 @@ export default function Header() {
           <NavLink to="/reel" className={navLinkClass}>
             Reel
           </NavLink>
+          <NavLink to="/imageFeed" className={navLinkClass}>
+            ImageDoubt
+          </NavLink>
         </div>
 
         {/* Right Section */}

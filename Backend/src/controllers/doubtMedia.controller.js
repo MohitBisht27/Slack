@@ -124,4 +124,59 @@ const getReel = asyncHandler(async (req, res) => {
   );
 });
 
-export { addDoubtMedia, getReel };
+const getImages = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const images = await DoubtMedia.aggregate([
+    { $match: { mediaType: "image" } },
+    { $sample: { size: 100 } },
+    { $skip: skip },
+    { $limit: limit },
+  ]);
+
+  if (!images || images.length === 0) {
+    throw new ApiError(404, "No images found for this page");
+  }
+
+  const populatedImages = await DoubtMedia.populate(images, {
+    path: "user",
+    select: "username avatar",
+  });
+
+  const formattedImages = populatedImages.map((item) => ({
+    _id: item._id,
+    title: item.title,
+    description: item.description,
+    imageUrl: item.image,
+    tags: item.tags,
+    user: item.user,
+    createdAt: item.createdAt,
+    likes: item.likes || 0,
+  }));
+
+  const totalImages = await DoubtMedia.countDocuments({
+    mediaType: "image",
+  });
+
+  const totalPages = Math.ceil(totalImages / limit);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        images: formattedImages,
+        pagination: {
+          page,
+          limit,
+          totalPages,
+          hasNextPage: page < totalPages,
+        },
+      },
+      "Images fetched successfully"
+    )
+  );
+});
+
+export { addDoubtMedia, getReel, getImages };
