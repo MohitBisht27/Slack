@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import DoubtMedia from "../models/doubtMedia.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
+
 const addDoubtMedia = asyncHandler(async (req, res) => {
   const { title, description, mediaType, tags } = req.body;
 
@@ -179,4 +181,38 @@ const getImages = asyncHandler(async (req, res) => {
   );
 });
 
-export { addDoubtMedia, getReel, getImages };
+const deleteDoubtMedia = asyncHandler(async (req, res) => {
+  const { mediaId } = req.params;
+
+  const media = await DoubtMedia.findById(mediaId);
+
+  if (!media) {
+    throw new ApiError(404, "Media post not found");
+  }
+
+  if (media.user.toString() !== req.user?._id.toString()) {
+    throw new ApiError(403, "Unauthorized: You cannot delete this post");
+  }
+  const mediaUrl = media.mediaType === "video" ? media.video : media.image;
+
+  if (mediaUrl) {
+    try {
+      const publicId = mediaUrl.split("/").pop().split(".")[0];
+      const resourceType = media.mediaType === "video" ? "video" : "image";
+
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: resourceType,
+      });
+    } catch (error) {
+      console.error("Cloudinary cleanup failed:", error.message);
+    }
+  }
+
+  await DoubtMedia.findByIdAndDelete(mediaId);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Post deleted successfully"));
+});
+
+export { addDoubtMedia, getReel, getImages, deleteDoubtMedia };

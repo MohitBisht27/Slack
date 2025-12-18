@@ -19,3 +19,7 @@ export const getReels = async (page = 1, limit = 5) => {
 export const getImages = async (page = 1, limit = 5) => {
   return api.get(`/image?page=${page}&limit=${limit}`);
 };
+
+export const deleteMedia = async (mediaId) => {
+  return api.delete(`/delete/${mediaId}`);
+};
