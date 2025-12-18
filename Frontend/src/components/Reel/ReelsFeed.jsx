@@ -34,6 +34,10 @@ export default function ReelsFeed() {
     }
   };
 
+  const handleRemoveReel = (deletedId) => {
+    setReels((prev) => prev.filter((reel) => reel._id !== deletedId));
+  };
+
   useEffect(() => {
     fetchReels();
   }, []);
@@ -57,7 +61,7 @@ export default function ReelsFeed() {
           )}
 
           {reels.map((reel) => (
-            <ReelCard key={reel._id} reel={reel} />
+            <ReelCard key={reel._id} reel={reel} onDelete={handleRemoveReel} />
           ))}
         </div>
 
