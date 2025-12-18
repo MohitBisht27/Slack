@@ -1,61 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { ThumbsUp, Trash2, Edit, Send, X } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import {
-  addComment,
-  deleteComment,
   updateComment,
+  deleteComment,
+  addComment,
   toggleLike,
 } from "../../features/CommentSlice";
+import {
+  ThumbsUp,
+  Trash2,
+  Edit,
+  Send,
+  MessageSquare,
+  X,
+  CornerDownRight,
+} from "lucide-react";
 
-function CommentItem({ comment, articleId, currentUserId }) {
+const CommentItem = ({ comment, articleId, depth = 0 }) => {
   const dispatch = useDispatch();
 
-  const [isReplying, setIsReplying] = useState(false);
+  const { user } = useAuth();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [replyText, setReplyText] = useState("");
-  const [editText, setEditText] = useState(comment.content);
+  const [isReplying, setIsReplying] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+  const [replyContent, setReplyContent] = useState("");
 
-  const [localIsLiked, setLocalIsLiked] = useState(comment.isLiked);
-  const [localLikesCount, setLocalLikesCount] = useState(
-    comment.likesCount || 0
-  );
+  const currentUserId = user?._id || user?.id;
+  const ownerId = comment.owner?._id || comment.owner;
+  const isOwner =
+    currentUserId && ownerId && String(currentUserId) === String(ownerId);
 
-  useEffect(() => {
-    setLocalIsLiked(comment.isLiked);
-    setLocalLikesCount(comment.likesCount || 0);
-    setEditText(comment.content);
-  }, [comment]);
-
-  // --- Handlers ---
-
-  const handleLike = () => {
-    const prevLiked = localIsLiked;
-    setLocalIsLiked(!prevLiked);
-    setLocalLikesCount((prev) => (prevLiked ? prev - 1 : prev + 1));
-
-    dispatch(toggleLike({ commentId: comment._id, articleId }));
-  };
-
-  const handleSubmitReply = () => {
-    if (!replyText.trim()) return;
-    dispatch(
-      addComment({
-        articleId,
-        content: replyText,
-        parentId: comment._id,
-      })
-    );
-    setIsReplying(false);
-    setReplyText("");
-  };
-
-  const handleSubmitEdit = () => {
-    if (!editText.trim()) return;
-    dispatch(
+  const handleUpdate = async () => {
+    if (!editContent.trim() || editContent === comment.content) {
+      setIsEditing(false);
+      return;
+    }
+    await dispatch(
       updateComment({
         commentId: comment._id,
-        content: editText,
+        content: editContent,
         articleId,
       })
     );
@@ -63,141 +48,194 @@ function CommentItem({ comment, articleId, currentUserId }) {
   };
 
   const handleDelete = () => {
-    if (!window.confirm("Delete this comment?")) return;
-    dispatch(deleteComment({ commentId: comment._id, articleId }));
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      dispatch(deleteComment({ commentId: comment._id, articleId }));
+    }
   };
 
-  // Check ownership
-  const isOwner = currentUserId && comment.owner?._id === currentUserId;
+  const handleReply = async () => {
+    if (!replyContent.trim()) return;
+    await dispatch(
+      addComment({
+        articleId,
+        content: replyContent,
+        parentId: comment._id,
+      })
+    );
+    setReplyContent("");
+    setIsReplying(false);
+  };
+
+  const handleLike = () => {
+    dispatch(toggleLike({ commentId: comment._id, articleId }));
+  };
 
   return (
-    <div className="flex gap-3 mb-4 w-full animate-in fade-in duration-300">
-      <img
-        src={comment.owner?.avatar?.url || "https://via.placeholder.com/40"}
-        alt="User"
-        className="w-8 h-8 rounded-full object-cover mt-1"
-      />
-
-      <div className="flex-1">
-        {/* Comment Bubble */}
-        <div className="bg-gray-100 p-3 rounded-lg rounded-tl-none relative group">
-          <div className="flex justify-between items-baseline mb-1">
-            <span className="font-semibold text-sm text-gray-900">
-              {comment.owner?.username}
-            </span>
-            <span className="text-xs text-gray-500">
-              {new Date(comment.createdAt).toLocaleDateString()}
-            </span>
+    <div className={`group mb-4 ${depth > 0 ? "ml-6 md:ml-10" : ""}`}>
+      <div
+        className={`p-4 rounded-xl border transition-all ${
+          depth > 0
+            ? "bg-gray-50 border-gray-100"
+            : "bg-white border-gray-200 shadow-sm"
+        }`}
+      >
+        {/* HEADER: User Info */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <img
+              src={
+                comment.owner?.avatar?.url ||
+                `https://ui-avatars.com/api/?name=${
+                  comment.owner?.username || "User"
+                }`
+              }
+              alt="avatar"
+              className="w-8 h-8 rounded-full border border-gray-200 object-cover"
+            />
+            <div>
+              <p className="text-sm font-bold text-gray-900">
+                {comment.owner?.username || "Anonymous User"}
+                {isOwner && (
+                  <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">
+                    You
+                  </span>
+                )}
+              </p>
+              <p className="text-[11px] text-gray-400">
+                {comment.createdAt
+                  ? new Date(comment.createdAt).toLocaleDateString()
+                  : ""}
+              </p>
+            </div>
           </div>
 
+          {depth > 0 && <CornerDownRight size={16} className="text-gray-300" />}
+        </div>
+
+        {/* BODY: Content or Edit Form */}
+        <div className="mb-4">
           {isEditing ? (
-            <div className="space-y-2 mt-2">
-              <input
-                className="w-full border border-gray-300 rounded p-1 text-sm focus:border-blue-500 outline-none"
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                autoFocus
+            <div className="space-y-2">
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full border border-blue-400 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-100 outline-none"
+                rows="2"
               />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSubmitEdit}
-                  className="text-xs bg-green-600 text-white px-2 py-1 rounded"
-                >
-                  Save
-                </button>
+              <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="text-xs bg-gray-300 px-2 py-1 rounded"
+                  className="px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={handleUpdate}
+                  className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Save Changes
                 </button>
               </div>
             </div>
           ) : (
-            <p className="text-gray-800 text-sm whitespace-pre-wrap">
+            <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
               {comment.content}
             </p>
           )}
         </div>
 
-        {/* Action Bar */}
-        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 font-medium select-none">
+        {/* FOOTER: Interaction Buttons */}
+        <div className="flex items-center gap-5 pt-2 border-t border-gray-50 text-gray-500">
+          {/* Like Button */}
           <button
             onClick={handleLike}
-            className={`flex items-center gap-1 transition ${
-              localIsLiked ? "text-blue-600" : "hover:text-blue-600"
+            className={`flex items-center gap-1.5 text-xs transition-colors hover:text-blue-600 ${
+              comment.isLiked ? "text-blue-600 font-bold" : ""
             }`}
           >
-            <ThumbsUp size={12} fill={localIsLiked ? "currentColor" : "none"} />
-            {localLikesCount > 0 ? localLikesCount : "Like"}
+            <ThumbsUp
+              size={14}
+              className={comment.isLiked ? "fill-current" : ""}
+            />
+            {comment.likesCount || 0}
           </button>
 
+          {/* Reply Toggle */}
           <button
             onClick={() => setIsReplying(!isReplying)}
-            className="hover:text-blue-600 transition"
+            className="flex items-center gap-1.5 text-xs hover:text-blue-600 transition-colors"
           >
+            <MessageSquare size={14} />
             Reply
           </button>
 
+          {/* Edit/Delete (Only visible to owner) */}
           {isOwner && (
-            <>
+            <div className="flex items-center gap-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
               <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="hover:text-green-600 flex items-center gap-1 transition"
+                onClick={() => {
+                  setIsEditing(true);
+                  setEditContent(comment.content);
+                }}
+                className="text-gray-400 hover:text-green-600 transition-colors"
+                title="Edit Comment"
               >
-                <Edit size={12} /> Edit
+                <Edit size={14} />
               </button>
               <button
                 onClick={handleDelete}
-                className="hover:text-red-600 flex items-center gap-1 transition"
+                className="text-gray-400 hover:text-red-600 transition-colors"
+                title="Delete Comment"
               >
-                <Trash2 size={12} /> Delete
+                <Trash2 size={14} />
               </button>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Reply Input */}
+        {/* REPLY INPUT FIELD */}
         {isReplying && (
-          <div className="flex gap-2 mt-2 items-center animate-in slide-in-from-top-1 fade-in duration-200">
+          <div className="mt-4 flex gap-2 animate-in slide-in-from-top-1 duration-200">
             <input
+              placeholder="Write a reply..."
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+              className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-blue-500"
               autoFocus
-              className="flex-1 border-b border-gray-300 focus:border-blue-500 outline-none text-sm py-1 bg-transparent"
-              placeholder={`Reply to ${comment.owner?.username}...`}
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmitReply()}
+              onKeyDown={(e) => e.key === "Enter" && handleReply()}
             />
             <button
-              onClick={handleSubmitReply}
-              className="text-blue-600 p-1 hover:bg-blue-50 rounded"
+              onClick={handleReply}
+              disabled={!replyContent.trim()}
+              className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               <Send size={14} />
             </button>
             <button
               onClick={() => setIsReplying(false)}
-              className="text-gray-400 p-1 hover:bg-gray-50 rounded"
+              className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"
             >
               <X size={14} />
             </button>
           </div>
         )}
-
-        {comment.replies && comment.replies.length > 0 && (
-          <div className="mt-3 pl-4 border-l-2 border-gray-200">
-            {comment.replies.map((reply) => (
-              <CommentItem
-                key={reply._id}
-                comment={reply}
-                articleId={articleId}
-                currentUserId={currentUserId}
-              />
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* RECURSION: Render children replies */}
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {comment.replies.map((reply) => (
+            <CommentItem
+              key={reply._id}
+              comment={reply}
+              articleId={articleId}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default CommentItem;
