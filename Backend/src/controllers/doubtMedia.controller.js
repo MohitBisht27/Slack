@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import DoubtMedia from "../models/doubtMedia.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { Like } from "../models/like.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
 const addDoubtMedia = asyncHandler(async (req, res) => {
@@ -81,21 +82,48 @@ const getReel = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+
+  const userId = req.user?._id;
+
   const reels = await DoubtMedia.aggregate([
     { $match: { mediaType: "video" } },
     { $sample: { size: 100 } },
     { $skip: skip },
     { $limit: limit },
+    {
+      $addFields: {
+        likesCount: { $size: { $ifNull: ["$likes", []] } },
+        isLiked: {
+          $cond: {
+            if: {
+              $and: [
+                { $ne: [userId, undefined] },
+                { $in: [userId, { $ifNull: ["$likes", []] }] },
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "user",
+        pipeline: [{ $project: { username: 1, avatar: 1 } }],
+      },
+    },
+    { $addFields: { user: { $first: "$user" } } },
   ]);
+
   if (!reels || reels.length === 0) {
     throw new ApiError(404, "No reels found for this page");
   }
-  const populatedReels = await DoubtMedia.populate(reels, {
-    path: "user",
-    select: "username avatar",
-  });
 
-  const formattedReels = populatedReels.map((item) => ({
+  const formattedReels = reels.map((item) => ({
     _id: item._id,
     title: item.title,
     description: item.description,
@@ -103,7 +131,8 @@ const getReel = asyncHandler(async (req, res) => {
     tags: item.tags,
     user: item.user,
     createdAt: item.createdAt,
-    likes: item.likes || 0,
+    likesCount: item.likesCount,
+    isLiked: item.isLiked,
   }));
 
   const totalVideos = await DoubtMedia.countDocuments({ mediaType: "video" });
@@ -130,24 +159,47 @@ const getImages = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+  const userId = req.user?._id;
 
   const images = await DoubtMedia.aggregate([
     { $match: { mediaType: "image" } },
     { $sample: { size: 100 } },
     { $skip: skip },
     { $limit: limit },
+    {
+      $addFields: {
+        likesCount: { $size: { $ifNull: ["$likes", []] } },
+        isLiked: {
+          $cond: {
+            if: {
+              $and: [
+                { $ne: [userId, undefined] },
+                { $in: [userId, { $ifNull: ["$likes", []] }] },
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "user",
+        pipeline: [{ $project: { username: 1, avatar: 1 } }],
+      },
+    },
+    { $addFields: { user: { $first: "$user" } } },
   ]);
 
   if (!images || images.length === 0) {
     throw new ApiError(404, "No images found for this page");
   }
 
-  const populatedImages = await DoubtMedia.populate(images, {
-    path: "user",
-    select: "username avatar",
-  });
-
-  const formattedImages = populatedImages.map((item) => ({
+  const formattedImages = images.map((item) => ({
     _id: item._id,
     title: item.title,
     description: item.description,
@@ -155,7 +207,8 @@ const getImages = asyncHandler(async (req, res) => {
     tags: item.tags,
     user: item.user,
     createdAt: item.createdAt,
-    likes: item.likes || 0,
+    likesCount: item.likesCount,
+    isLiked: item.isLiked,
   }));
 
   const totalImages = await DoubtMedia.countDocuments({
@@ -180,7 +233,6 @@ const getImages = asyncHandler(async (req, res) => {
     )
   );
 });
-
 const deleteDoubtMedia = asyncHandler(async (req, res) => {
   const { mediaId } = req.params;
 
@@ -214,5 +266,52 @@ const deleteDoubtMedia = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
+const toggleMediaLike = asyncHandler(async (req, res) => {
+  const { mediaId } = req.params;
+  const userId = req.user?._id;
 
-export { addDoubtMedia, getReel, getImages, deleteDoubtMedia };
+  if (!mediaId) {
+    throw new ApiError(400, "Media ID is required");
+  }
+
+  const media = await DoubtMedia.findById(mediaId);
+  if (!media) {
+    throw new ApiError(404, "Media post not found");
+  }
+
+  const isLiked = media.likes.includes(userId);
+
+  if (isLiked) {
+    await DoubtMedia.findByIdAndUpdate(
+      mediaId,
+      { $pull: { likes: userId } },
+      { new: true }
+    );
+
+    await Like.findOneAndDelete({
+      media: mediaId,
+      likeBy: userId,
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { isLiked: false }, "Unliked successfully"));
+  } else {
+    await DoubtMedia.findByIdAndUpdate(
+      mediaId,
+      { $addToSet: { likes: userId } },
+      { new: true }
+    );
+
+    await Like.create({
+      media: mediaId,
+      likeBy: userId,
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { isLiked: true }, "Liked successfully"));
+  }
+});
+
+export { addDoubtMedia, getReel, getImages, deleteDoubtMedia, toggleMediaLike };

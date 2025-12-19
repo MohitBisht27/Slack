@@ -23,3 +23,7 @@ export const getImages = async (page = 1, limit = 5) => {
 export const deleteMedia = async (mediaId) => {
   return api.delete(`/delete/${mediaId}`);
 };
+
+export const toggleMediaLike = async (mediaId) => {
+  return api.patch(`/toggle/like/${mediaId}`);
+};

@@ -3,6 +3,7 @@ import {
   addDoubtMedia,
   getImages,
   getReel,
+  toggleMediaLike,
   deleteDoubtMedia,
 } from "../controllers/doubtMedia.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -21,4 +22,5 @@ router.route("/add").post(
 router.route("/reels").get(getReel);
 router.route("/image").get(getImages);
 router.route("/delete/:mediaId").delete(verifyJWT, deleteDoubtMedia);
+router.route("/toggle/like/:mediaId").patch(verifyJWT, toggleMediaLike);
 export default router;

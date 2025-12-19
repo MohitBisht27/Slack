@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { getImages, deleteMedia } from "../../api/MediaApi";
-import { Trash2, Loader2, MessageSquare } from "lucide-react";
+import { getImages, deleteMedia, toggleMediaLike } from "../../api/MediaApi";
+import { Trash2, Loader2, MessageSquare, Heart } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 import MediaCommentCard from "../CommentCard/MediaCommentCard";
 
 function ImageDoubtFeed() {
+  const { user, isAuthenticated } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,8 +18,53 @@ function ImageDoubtFeed() {
     showConfirm: false,
   });
 
+  const [likeLoading, setLikeLoading] = useState({});
+
   const toggleComments = (id) => {
     setOpenCommentsId(openCommentsId === id ? null : id);
+  };
+
+  const handleLike = async (mediaId) => {
+    if (!isAuthenticated) return alert("Please login to like doubts!");
+    if (likeLoading[mediaId]) return;
+
+    const originalData = { ...data };
+
+    setData((prev) => ({
+      ...prev,
+      images: prev.images.map((img) => {
+        if (img._id === mediaId) {
+          const currentlyLiked = img.isLiked;
+          return {
+            ...img,
+            isLiked: !currentlyLiked,
+            likesCount: currentlyLiked
+              ? img.likesCount - 1
+              : img.likesCount + 1,
+          };
+        }
+        return img;
+      }),
+    }));
+
+    setLikeLoading((prev) => ({ ...prev, [mediaId]: true }));
+
+    try {
+      const response = await toggleMediaLike(mediaId);
+      const serverIsLiked = response.data.data.isLiked;
+
+      setData((prev) => ({
+        ...prev,
+        images: prev.images.map((img) =>
+          img._id === mediaId ? { ...img, isLiked: serverIsLiked } : img
+        ),
+      }));
+    } catch (error) {
+      console.error("❌ Like failed:", error);
+      setData(originalData);
+    } finally {
+      setLikeLoading((prev) => ({ ...prev, [mediaId]: false }));
+    }
   };
 
   const handleDelete = async (mediaId) => {
@@ -76,6 +123,7 @@ function ImageDoubtFeed() {
             key={doubt._id}
             className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative group transition-all"
           >
+            {/* --- DELETE LOGIC (Existing) --- */}
             <div className="absolute top-4 right-4 z-10">
               {deleteState.showConfirm && deleteState.id === doubt._id ? (
                 <div className="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md">
@@ -144,7 +192,6 @@ function ImageDoubtFeed() {
               />
             </div>
 
-            {/* --- Content --- */}
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2 capitalize">
                 {doubt.title}
@@ -152,9 +199,23 @@ function ImageDoubtFeed() {
               <p className="text-gray-600 mb-4">{doubt.description}</p>
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <span className="font-medium text-indigo-600">
-                  {doubt.likes?.length || 0} Likes
-                </span>
+                {/* --- UPDATED LIKE BUTTON --- */}
+                <button
+                  onClick={() => handleLike(doubt._id)}
+                  disabled={likeLoading[doubt._id]}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all active:scale-90 ${
+                    doubt.isLiked
+                      ? "text-red-500 bg-red-50"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <Heart
+                    size={22}
+                    fill={doubt.isLiked ? "currentColor" : "none"}
+                    className={likeLoading[doubt._id] ? "animate-pulse" : ""}
+                  />
+                  <span className="font-bold">{doubt.likesCount || 0}</span>
+                </button>
 
                 <button
                   onClick={() => toggleComments(doubt._id)}
