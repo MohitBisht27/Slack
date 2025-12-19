@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
 
-export default function ReelActions({ initialLikes }) {
+export default function ReelActions({
+  initialLikes,
+  onCommentClick,
+  isCommentOpen,
+}) {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
 
@@ -22,9 +26,20 @@ export default function ReelActions({ initialLikes }) {
           <Heart size={24} fill={isLiked ? "currentColor" : "none"} />
           <span className="text-sm font-medium">{likesCount}</span>
         </button>
-        <button className="text-gray-700 hover:text-blue-500 flex items-center gap-1.5">
-          <MessageCircle size={24} />
+        <button
+          onClick={onCommentClick}
+          className={`flex items-center gap-1.5 transition-colors ${
+            isCommentOpen
+              ? "text-blue-500"
+              : "text-gray-700 hover:text-blue-500"
+          }`}
+        >
+          <MessageCircle
+            size={24}
+            fill={isCommentOpen ? "currentColor" : "none"}
+          />
         </button>
+
         <button className="text-gray-700 hover:text-green-500">
           <Share2 size={24} />
         </button>

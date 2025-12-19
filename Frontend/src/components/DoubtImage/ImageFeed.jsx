@@ -1,22 +1,27 @@
 import { useState, useEffect } from "react";
 import { getImages, deleteMedia } from "../../api/MediaApi";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2, Loader2, MessageSquare } from "lucide-react";
+
+import MediaCommentCard from "../CommentCard/MediaCommentCard";
 
 function ImageDoubtFeed() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [openCommentsId, setOpenCommentsId] = useState(null);
+
   const [deleteState, setDeleteState] = useState({
     id: null,
     isDeleting: false,
     showConfirm: false,
   });
-  const handleDelete = async (mediaId) => {
-    setDeleteState({
-      id: mediaId,
-      isDeleting: true,
-      showConfirm: true,
-    });
 
+  const toggleComments = (id) => {
+    setOpenCommentsId(openCommentsId === id ? null : id);
+  };
+
+  const handleDelete = async (mediaId) => {
+    setDeleteState({ id: mediaId, isDeleting: true, showConfirm: true });
     try {
       await deleteMedia(mediaId);
       setData((prev) => ({
@@ -25,15 +30,11 @@ function ImageDoubtFeed() {
       }));
     } catch (error) {
       console.error("❌ Delete failed:", error);
-      alert("Failed to delete. Please try again.");
     } finally {
-      setDeleteState({
-        id: null,
-        isDeleting: false,
-        showConfirm: false,
-      });
+      setDeleteState({ id: null, isDeleting: false, showConfirm: false });
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,29 +54,9 @@ function ImageDoubtFeed() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-          <p className="text-gray-500 animate-pulse font-medium">
+          <p className="text-gray-500 font-medium">
             Loading community doubts...
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data?.images || data.images.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="text-center bg-white p-10 rounded-3xl shadow-sm border border-gray-100 max-w-md">
-          <div className="text-5xl mb-4">🔍</div>
-          <h2 className="text-2xl font-bold text-gray-800">No doubts found</h2>
-          <p className="mt-2 text-gray-500">
-            Everything looks clear! Check back later.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
-          >
-            Refresh Feed
-          </button>
         </div>
       </div>
     );
@@ -90,15 +71,14 @@ function ImageDoubtFeed() {
       </header>
 
       <div className="max-w-2xl mx-auto flex flex-col gap-10">
-        {data.images.map((doubt) => (
+        {data?.images?.map((doubt) => (
           <article
             key={doubt._id}
-            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative group transition-all hover:border-indigo-100"
+            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative group transition-all"
           >
-            {/* 🔴 DELETE UI (SAME AS ReelHeader) */}
             <div className="absolute top-4 right-4 z-10">
               {deleteState.showConfirm && deleteState.id === doubt._id ? (
-                <div className="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md animate-in fade-in slide-in-from-right-2">
+                <div className="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md">
                   <button
                     onClick={() =>
                       setDeleteState({
@@ -107,21 +87,16 @@ function ImageDoubtFeed() {
                         showConfirm: false,
                       })
                     }
-                    className="text-xs font-semibold text-gray-500 hover:text-gray-700 px-2"
+                    className="text-xs text-gray-500 px-2"
                   >
                     Cancel
                   </button>
-
                   <button
-                    disabled={deleteState.isDeleting}
                     onClick={() => handleDelete(doubt._id)}
-                    className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-md flex items-center gap-2 disabled:opacity-50"
+                    className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-md"
                   >
                     {deleteState.isDeleting ? (
-                      <>
-                        <Loader2 size={14} className="animate-spin" />
-                        Deleting...
-                      </>
+                      <Loader2 size={14} className="animate-spin" />
                     ) : (
                       "Confirm"
                     )}
@@ -136,21 +111,19 @@ function ImageDoubtFeed() {
                       showConfirm: true,
                     })
                   }
-                  className="p-2 rounded-full bg-white/90 text-gray-400 hover:text-red-500 hover:bg-red-50 shadow-md opacity-0 group-hover:opacity-100 transition-all"
-                  title="Delete"
+                  className="p-2 rounded-full bg-white/90 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                 >
                   <Trash2 size={18} />
                 </button>
               )}
             </div>
 
-            {/* 🔴 Header */}
             <div className="p-4 flex items-center gap-3">
               <img
                 src={
                   doubt.user?.avatar?.url || "https://via.placeholder.com/40"
                 }
-                className="w-10 h-10 rounded-full object-cover border-2 border-indigo-50"
+                className="w-10 h-10 rounded-full object-cover"
                 alt="avatar"
               />
               <div>
@@ -163,7 +136,6 @@ function ImageDoubtFeed() {
               </div>
             </div>
 
-            {/* 🔴 Image */}
             <div className="relative aspect-video w-full bg-gray-100">
               <img
                 src={doubt.imageUrl}
@@ -172,7 +144,7 @@ function ImageDoubtFeed() {
               />
             </div>
 
-            {/* 🔴 Content */}
+            {/* --- Content --- */}
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2 capitalize">
                 {doubt.title}
@@ -183,10 +155,25 @@ function ImageDoubtFeed() {
                 <span className="font-medium text-indigo-600">
                   {doubt.likes?.length || 0} Likes
                 </span>
-                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-semibold shadow-sm transition-all active:scale-95">
-                  Solve Doubt
+
+                <button
+                  onClick={() => toggleComments(doubt._id)}
+                  className={`flex items-center gap-2 px-6 py-2 rounded-xl font-semibold shadow-sm transition-all active:scale-95 ${
+                    openCommentsId === doubt._id
+                      ? "bg-gray-200 text-gray-700"
+                      : "bg-indigo-600 text-white hover:bg-indigo-700"
+                  }`}
+                >
+                  <MessageSquare size={18} />
+                  {openCommentsId === doubt._id ? "Close" : "Solve Doubt"}
                 </button>
               </div>
+
+              {openCommentsId === doubt._id && (
+                <div className="mt-6 pt-6 border-t border-gray-100 animate-in slide-in-from-top-4 duration-300">
+                  <MediaCommentCard mediaId={doubt._id} />
+                </div>
+              )}
             </div>
           </article>
         ))}
