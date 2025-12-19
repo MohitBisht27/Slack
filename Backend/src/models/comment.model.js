@@ -7,6 +7,10 @@ const commentSchema = new Schema(
       type: String,
       required: true,
     },
+    doubtMedia: {
+      type: Schema.Types.ObjectId,
+      ref: "DoubtMedia",
+    },
     article: {
       type: Schema.Types.ObjectId,
       ref: "Article",
