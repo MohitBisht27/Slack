@@ -34,14 +34,11 @@ export default function Header() {
           <NavLink to="/doubtFeed" className={navLinkClass}>
             Doubt
           </NavLink>
-          <NavLink to="/ask-problem" className={navLinkClass}>
-            Ask Problem
-          </NavLink>
           <NavLink to="/reel" className={navLinkClass}>
             Reel
           </NavLink>
           <NavLink to="/imageFeed" className={navLinkClass}>
-            ImageDoubt
+            Community
           </NavLink>
         </div>
 
@@ -126,26 +123,17 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileMenu && (
         <div className="lg:hidden bg-white border-t px-4 py-3 space-y-2">
-          <NavLink
-            to="/"
-            onClick={() => setMobileMenu(false)}
-            className={navLinkClass}
-          >
+          <NavLink to="/" className={navLinkClass}>
             Home
           </NavLink>
-          <NavLink
-            to="/ask-problem"
-            onClick={() => setMobileMenu(false)}
-            className={navLinkClass}
-          >
-            Ask Problem
+          <NavLink to="/doubtFeed" className={navLinkClass}>
+            Doubt
           </NavLink>
-          <NavLink
-            to="/reel"
-            onClick={() => setMobileMenu(false)}
-            className={navLinkClass}
-          >
+          <NavLink to="/reel" className={navLinkClass}>
             Reel
+          </NavLink>
+          <NavLink to="/imageFeed" className={navLinkClass}>
+            Community
           </NavLink>
 
           {!isAuthenticated && (
