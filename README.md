@@ -1,4 +1,4 @@
-# ProbZ
+#Slack
 A project on Knowledge Sharing Platform.
 🛠️ Tech Stack
 Frontend
