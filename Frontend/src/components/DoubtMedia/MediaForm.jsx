@@ -81,7 +81,7 @@ export default function AddDoubtMediaForm() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Add Your Doubt Media
+          Share Knowledge
         </h2>
 
         {message && (
@@ -156,7 +156,7 @@ export default function AddDoubtMediaForm() {
             onChange={handleChange}
           />
 
-          <SubmitButton loading={loading} text="Add Doubt Media" />
+          <SubmitButton loading={loading} text="Post" />
         </form>
       </div>
     </div>
